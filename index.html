@@ -9,9 +9,18 @@
 
     </head>
 <body>
+    <canvas id="gameCanvas" width="300" height="300">&lt;canvas>
 <script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d"); // Get 2D drawing context
 
+// Draw filled rectangle (white)
+ctx.fillStyle = "white";
+ctx.fillRect(0, 0, 300, 300);
 
+// Draw border (black)
+ctx.strokeStyle = "black";
+ctx.strokeRect(0, 0, 300, 300);
 
 
 
