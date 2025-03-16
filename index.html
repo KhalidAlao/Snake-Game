@@ -78,14 +78,15 @@ let gameLoop;
         // Initialize first game
         initialGame();
 
-        function drawSnakePart(snakePart) {  
-            ctx.fillStyle = 'red';  
-            ctx.strokeStyle = 'black'; 
-            ctx.fillRect(snakePart.x, snakePart.y, 10, 10);  
-            ctx.strokeRect(snakePart.x, snakePart.y, 10, 10); 
-        }
+        function drawSnakePart(part) {
+            ctx.fillStyle = '#4a90e2'; // Sym’s blue
+            ctx.shadowColor = '#4a90e2';
+            ctx.shadowBlur = 15;
+            ctx.fillRect(part.x, part.y, 10, 10);
+}
 
         function changeDirection(event) {
+            // Keys declared using key codes
             const LEFT_KEY = 37;  
             const RIGHT_KEY = 39;  
             const UP_KEY = 38;  
@@ -150,11 +151,11 @@ let gameLoop;
             ctx.strokeRect(0, 0, canvas.width, canvas.height);
         }
 
-        function drawFood() { 
-            ctx.fillStyle = 'blue'; 
-            ctx.strokeStyle = 'darkblue'; 
-            ctx.fillRect(foodX, foodY, 10, 10); 
-            ctx.strokeRect(foodX, foodY, 10, 10);
+        function drawFood() {
+            ctx.fillStyle = '#ff6b6b'; 
+            ctx.beginPath();
+            ctx.arc(foodX + 5, foodY + 5, 5, 0, Math.PI * 2); 
+            ctx.fill();
         }
 
         function didGameEnd() {  
@@ -170,7 +171,9 @@ let gameLoop;
 
         function main() {
             if (didGameEnd()) { 
-                alert("Game Over! Score: " + score);
+                alert("Game Over! \nScore: " + score 
+                     + " \nPlease click Restart to try again."
+                );
                 return;
             }
             
