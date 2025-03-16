@@ -10,6 +10,8 @@
 <body>
     <h1>Snake Game</h1>
 
+    <div id="score">Score: 0</div><canvas id="gameCanvas" width="300" height="300"></canvas>
+
     <canvas id="gameCanvas" width="300" height="300">&lt;canvas>
 <script>
 
@@ -38,6 +40,12 @@ let snake = [
 // Direction speeds 
 let dx = 10;
 let dy = 0;
+
+// Initialise food
+let foodX, foodY; 
+
+// Initialise the score
+let score = 0;
 
 function drawSnakePart(snakePart) {  
     ctx.fillStyle = 'red';  
@@ -85,16 +93,37 @@ function drawSnake() {
 // Render the snake on the canvas
 drawSnake();
 
-// Move the snake
+// Render the food on the canvas
+createFood();
+
+// Move the snake by addaing a new head and removing the tail
 function advanceSnake() {
 
     const head = {x: snake[0].x + dx, y: snake[0].y + dy};
     snake.unshift(head);
-    snake.pop();
+    const didEatFood = snake[0].x === foodX && snake[0].y === foodY;  
+    if (didEatFood) {    
+        score += 10;    
+        document.getElementById('score').textContent = `Score: ${score}`;
+        
+        createFood();
+    } else {    snake.pop();  
 
+    }
+
+    
 }
 
+function randomTen(min, max) {  
+    return Math.round((Math.random() * (max-min) + min) / 10) * 10;
+}
 
+function createFood() {  
+  do {
+    foodX = randomTen(0, canvas.width - 10);
+    foodY = randomTen(0, canvas.height - 10);
+  } while (snake.some(part => part.x === foodX && part.y === foodY));
+}
 
 
 
@@ -103,9 +132,15 @@ function advanceSnake() {
 function clearCanvas() {
     ctx.fillStyle = "white";
     ctx.strokeStyle = "black";
-    ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);  
-    ctx.strokeRect(0, 0, gameCanvas.width, gameCanvas.height);
+    ctx.fillRect(0, 0, canvas.width, canvas.height);  
+    ctx.strokeRect(0, 0, canvas.width, canvas.height);
+};
 
+function drawFood() { 
+    ctx.fillStyle = 'blue'; 
+    ctx.strokeStyle = 'darkblue'; 
+    ctx.fillRect(foodX, foodY, 10, 10); 
+    ctx.strokeRect(foodX, foodY, 10, 10);
 }
 
 
@@ -118,22 +153,45 @@ function clearCanvas() {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+document.addEventListener("keydown", changeDirection);
 
 function main() {
-  setTimeout(function onTick() {
+  setTimeout(() => {
     clearCanvas();
     advanceSnake();
+    drawFood();
     drawSnake();
     main();  // Recursive call to keep the loop going
-    document.addEventListener("keydown", changeDirection);
+   
   }, 100);
 }
+ 
 
 
 
-
-
-
+// Start the game 
+main();
 </script>
 </body>
 </html>
