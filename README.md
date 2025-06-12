@@ -1,25 +1,26 @@
-# Snake Game 🐍🎮
+A sleek, responsive, and theme-toggleable Snake Game built with HTML, CSS, and JavaScript. The game features a retro-inspired interface, modern design enhancements, and optimized usability across both desktop and mobile devices.
+🚀 Features
+🎮 Classic Snake Gameplay: Navigate the snake to collect food, grow longer, and avoid crashing into yourself.
+🌗 Light/Dark Theme Toggle: Easily switch between light and dark themes via an interactive toggle switch.
+📱 Responsive Design: Fully mobile-optimized layout with on-screen directional controls for touch devices.
+🎨 Smooth Animations & Transitions: Visual polish using CSS transitions and hover effects for an engaging experience.
+🧠 Accessible UI: Clear typography, contrast-aware color themes, and intuitive controls.
 
-A simple browser-based Snake Game built using **HTML, CSS, and JavaScript**. The game features smooth movement, collision detection, and a restart button to play again.
-
-## Features
-- Classic snake movement with arrow keys 
-- Food spawning and score tracking 
-- Game-over detection with restart functionality 
-- Responsive design with a clean UI
-
-## How to Play
-1. Use arrow keys to move the snake.
-2. Eat the blue food to grow and increase your score.
-3. Avoid colliding with the walls or yourself.
-4. If you crash, click **Restart** to play again!
-
-## Technologies Used
-- **HTML**: Structure of the game
-- **CSS**: Styling the game elements
-- **JavaScript**: Game logic, movement, and interactions
-
-## Setup and Running the Game
-1. Clone this repository:
-   ```sh
-   git clone https://github.com/KhalidAlao/Snake-Game
+🛠️ Technologies Used
+HTML5 – Semantic structure and canvas setup.
+CSS3 – Theming, transitions, responsive layout, mobile UI.
+JavaScript – Game logic, canvas rendering, user input handling, theme management.
+📂 Project Structure
+/snake-game/
+│
+├── index.html         # Main HTML file
+├── styles.css         # All visual styling and responsive layout
+├── script.js          # Game logic (not included here)
+└── README.md          # Project overview and instructions
+🎮 How to Play
+Start the game: Snake moves automatically once started.
+Control the snake:
+Arrow keys on desktop.
+On-screen buttons on mobile.
+Goal: Eat food, grow longer, avoid crashing into walls or yourself.
+Restart: Click the "Restart" button after a game over.
