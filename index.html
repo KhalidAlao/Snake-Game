@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,42 +8,104 @@
 
 </head>
 <body>
-    <h1>Snake Game</h1>
-    <div id="score">Score: 0</div>
-    <button id="restart-btn" class="restartBtn">Restart </button>
-    <canvas id="gameCanvas" width="300" height="300">&lt;canvas>
+    <div class="header">
+        <h1>🐍 Snake Game</h1>
+        <div class="theme-toggle" id="theme-toggle">
+            <span>Dark Mode</span>
+            <div class="toggle-switch"></div>
+        </div>
+    </div>
     
-<script>
-const canvas = document.getElementById("gameCanvas");
+    <div class="game-container">
+        <div class="score-panel">
+            <div id="score">Score: 0</div>
+            <button id="restart-btn" class="restartBtn">Restart Game</button>
+        </div>
+        
+        <div class="canvas-wrapper">
+            <canvas id="gameCanvas"></canvas>
+            <div class="game-over" id="game-over">
+                <div>Game Over!</div>
+                <div class="final-score" id="final-score">Score: 0</div>
+                <button class="restart-game" id="restart-game">Play Again</button>
+            </div>
+        </div>
+        
+        <div class="mobile-controls">
+            <button class="mobile-btn up-btn" id="up-btn">↑</button>
+            <button class="mobile-btn left-btn" id="left-btn">←</button>
+            <button class="mobile-btn right-btn" id="right-btn">→</button>
+            <button class="mobile-btn down-btn" id="down-btn">↓</button>
+        </div>
+        
+        <div class="instructions">
+            <p>Use arrow keys or buttons to control the snake. Eat the red food to grow and earn points!</p>
+        </div>
+    </div>
 
-// Get 2D drawing context
-const ctx = canvas.getContext("2d"); 
-
-// Draw filled rectangle
-ctx.fillStyle = "white";
-ctx.fillRect(0, 0, 300, 300);
-
-// Draw border
-ctx.strokeStyle = "black";
-ctx.strokeRect(0, 0, 300, 300);
-
-const restartBtn = document.getElementById("restart-btn");
-
-let gameLoop;
-
- // Initial game state
- let snake, dx, dy, foodX, foodY, score;
-
- function initialGame() {
+    <script>
+        // Theme Toggle Functionality
+        const themeToggle = document.getElementById('theme-toggle');
+        const htmlElement = document.documentElement;
+        
+        // Load saved theme preference
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        htmlElement.setAttribute('data-theme', savedTheme);
+        updateThemeText();
+        
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = htmlElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            htmlElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeText();
+        });
+        
+        function updateThemeText() {
+            const themeText = themeToggle.querySelector('span');
+            const currentTheme = htmlElement.getAttribute('data-theme');
+            themeText.textContent = currentTheme === 'dark' ? 'Dark Mode' : 'Light Mode';
+        }
+        
+        // Game Initialization
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const restartBtn = document.getElementById("restart-btn");
+        const restartGameBtn = document.getElementById("restart-game");
+        const gameOverScreen = document.getElementById("game-over");
+        const finalScore = document.getElementById("final-score");
+        
+        // Mobile controls
+        const upBtn = document.getElementById('up-btn');
+        const leftBtn = document.getElementById('left-btn');
+        const rightBtn = document.getElementById('right-btn');
+        const downBtn = document.getElementById('down-btn');
+        
+        // Game variables
+        let snake, dx, dy, foodX, foodY, score, gameLoop;
+        const gridSize = 15;
+        const gameSpeed = 100; // ms
+        let gameRunning = true;
+        
+        // Initialize canvas size
+        function resizeCanvas() {
+            const size = Math.min(canvas.parentElement.offsetWidth, canvas.parentElement.offsetHeight);
+            canvas.width = size;
+            canvas.height = size;
+            resetGame();
+        }
+        
+        // Initialize game
+        function initGame() {
             // Reset game state
             snake = [  
-                {x: 150, y: 150},  
-                {x: 140, y: 150},  
-                {x: 130, y: 150},  
-                {x: 120, y: 150},  
-                {x: 110, y: 150},
+                {x: Math.floor(canvas.width/2/gridSize)*gridSize, y: Math.floor(canvas.height/2/gridSize)*gridSize},  
+                {x: Math.floor(canvas.width/2/gridSize)*gridSize - gridSize, y: Math.floor(canvas.height/2/gridSize)*gridSize},  
+                {x: Math.floor(canvas.width/2/gridSize)*gridSize - gridSize*2, y: Math.floor(canvas.height/2/gridSize)*gridSize},  
+                {x: Math.floor(canvas.width/2/gridSize)*gridSize - gridSize*3, y: Math.floor(canvas.height/2/gridSize)*gridSize},  
+                {x: Math.floor(canvas.width/2/gridSize)*gridSize - gridSize*4, y: Math.floor(canvas.height/2/gridSize)*gridSize},
             ];
-            dx = 10;
+            dx = gridSize;
             dy = 0;
             score = 0;
             document.getElementById('score').textContent = `Score: ${score}`;
@@ -57,72 +119,92 @@ let gameLoop;
             drawFood();
             drawSnake();
         }
-
+        
+        // Reset game
         function resetGame() {
+            gameRunning = true;
+            gameOverScreen.style.display = 'none';
             if (gameLoop) clearTimeout(gameLoop);
-            initialGame();
+            initGame();
             main();
         }
-
-
-        // Initial canvas setup
-        ctx.fillStyle = "white";
-        ctx.fillRect(0, 0, 300, 300);
-        ctx.strokeStyle = "black";
-        ctx.strokeRect(0, 0, 300, 300);
-
-        // Event listeners
-        document.addEventListener("keydown", changeDirection);
-        restartBtn.addEventListener("click", resetGame);
-
-        // Initialize first game
-        initialGame();
-
-        function drawSnakePart(part) {
-            ctx.fillStyle = '#4a90e2'; // Sym’s blue
-            ctx.shadowColor = '#4a90e2';
-            ctx.shadowBlur = 15;
-            ctx.fillRect(part.x, part.y, 10, 10);
-}
-
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Prevent default behavior for arrow keys to stop page scrolling
+            document.addEventListener("keydown", (e) => {
+                if ([37, 38, 39, 40].includes(e.keyCode)) {
+                    e.preventDefault();
+                }
+                changeDirection(e);
+            });
+            
+            restartBtn.addEventListener("click", resetGame);
+            restartGameBtn.addEventListener("click", resetGame);
+            
+            // Mobile event listeners
+            upBtn.addEventListener('click', () => changeDirection({keyCode: 38}));
+            leftBtn.addEventListener('click', () => changeDirection({keyCode: 37}));
+            rightBtn.addEventListener('click', () => changeDirection({keyCode: 39}));
+            downBtn.addEventListener('click', () => changeDirection({keyCode: 40}));
+        }
+        
+        function drawSnakePart(part, index) {
+            // Head is drawn differently
+            if (index === 0) {
+                ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--snake-head');
+            } else {
+                ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--snake');
+            }
+            
+            ctx.fillRect(part.x, part.y, gridSize, gridSize);
+            
+            // Add a subtle border to snake parts
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.strokeRect(part.x, part.y, gridSize, gridSize);
+        }
+        
         function changeDirection(event) {
-            // Keys declared using key codes
+            if (!gameRunning) return;
+            
             const LEFT_KEY = 37;  
             const RIGHT_KEY = 39;  
             const UP_KEY = 38;  
             const DOWN_KEY = 40;
-
+            
             const keyPressed = event.keyCode;  
-            const goingUp = dy === -10;  
-            const goingDown = dy === 10;  
-            const goingRight = dx === 10;  
-            const goingLeft = dx === -10;
-
+            const goingUp = dy === -gridSize;  
+            const goingDown = dy === gridSize;  
+            const goingRight = dx === gridSize;  
+            const goingLeft = dx === -gridSize;
+            
+            // Prevent 180-degree turns
             if (keyPressed === LEFT_KEY && !goingRight) {    
-                dx = -10;    
+                dx = -gridSize;    
                 dy = 0; 
             }
             if (keyPressed === UP_KEY && !goingDown) {    
                 dx = 0;    
-                dy = -10;  
+                dy = -gridSize;  
             }
             if (keyPressed === RIGHT_KEY && !goingLeft) {    
-                dx = 10;    
+                dx = gridSize;    
                 dy = 0;  
             }
             if (keyPressed === DOWN_KEY && !goingUp) {    
                 dx = 0;    
-                dy = 10;  
+                dy = gridSize;  
             }
         }
-
+        
         function drawSnake() {  
-            snake.forEach(drawSnakePart);
+            snake.forEach((part, index) => drawSnakePart(part, index));
         }
-
+        
         function advanceSnake() {
             const head = {x: snake[0].x + dx, y: snake[0].y + dy};
             snake.unshift(head);
+            
             const didEatFood = snake[0].x === foodX && snake[0].y === foodY;  
             if (didEatFood) {    
                 score += 10;    
@@ -132,48 +214,81 @@ let gameLoop;
                 snake.pop();  
             }
         }
-
-        function randomTen(min, max) {  
-            return Math.round((Math.random() * (max - min) + min) / 10) * 10;
+        
+        function randomGridPosition(min, max) {
+            return Math.floor(Math.random() * (max - min) + min) * gridSize;
         }
-
+        
         function createFood() {  
             do {
-                foodX = randomTen(0, canvas.width - 10);
-                foodY = randomTen(0, canvas.height - 10);
+                foodX = randomGridPosition(0, (canvas.width - gridSize) / gridSize);
+                foodY = randomGridPosition(0, (canvas.height - gridSize) / gridSize);
             } while (snake.some(part => part.x === foodX && part.y === foodY));
         }
-
+        
         function clearCanvas() {
-            ctx.fillStyle = "white";
-            ctx.strokeStyle = "black";
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-bg');
             ctx.fillRect(0, 0, canvas.width, canvas.height);  
+            
+            // Draw grid lines for better visibility
+            ctx.strokeStyle = "rgba(128, 128, 128, 0.1)";
+            ctx.lineWidth = 0.5;
+            
+            // Vertical lines
+            for (let x = 0; x <= canvas.width; x += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            
+            // Horizontal lines
+            for (let y = 0; y <= canvas.height; y += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+            
+            // Draw border
+            ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-border');
+            ctx.lineWidth = 2;
             ctx.strokeRect(0, 0, canvas.width, canvas.height);
         }
-
+        
         function drawFood() {
-            ctx.fillStyle = '#ff6b6b'; 
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--food');
             ctx.beginPath();
-            ctx.arc(foodX + 5, foodY + 5, 5, 0, Math.PI * 2); 
+            ctx.arc(foodX + gridSize/2, foodY + gridSize/2, gridSize/2 - 2, 0, Math.PI * 2); 
+            ctx.fill();
+            
+            // Add shine effect to food
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.beginPath();
+            ctx.arc(foodX + gridSize/3, foodY + gridSize/3, gridSize/6, 0, Math.PI * 2); 
             ctx.fill();
         }
-
+        
         function didGameEnd() {  
+            // Check collision with self
             for (let i = 4; i < snake.length; i++) {    
                 if (snake[i].x === snake[0].x && snake[i].y === snake[0].y) return true;
             }
+            
+            // Check collision with walls
             const hitLeftWall = snake[0].x < 0;  
-            const hitRightWall = snake[0].x > canvas.width - 10;
+            const hitRightWall = snake[0].x >= canvas.width;
             const hitTopWall = snake[0].y < 0;  
-            const hitBottomWall = snake[0].y > canvas.height - 10;
+            const hitBottomWall = snake[0].y >= canvas.height;
+            
             return hitLeftWall || hitRightWall || hitTopWall || hitBottomWall;
         }
-
+        
         function main() {
             if (didGameEnd()) { 
-                alert("Game Over! \nScore: " + score 
-                     + " \nPlease click Restart to try again."
-                );
+                gameRunning = false;
+                finalScore.textContent = `Score: ${score}`;
+                gameOverScreen.style.display = 'flex';
                 return;
             }
             
@@ -183,12 +298,18 @@ let gameLoop;
                 drawFood();
                 drawSnake();
                 main();
-            }, 100);
+            }, gameSpeed);
         }
-
-        // Start the initial game
-        main();
-
-</script>
+        
+        // Initialize everything
+        window.addEventListener('load', () => {
+            resizeCanvas();
+            setupEventListeners();
+            initGame();
+            main();
+        });
+        
+        window.addEventListener('resize', resizeCanvas);
+    </script>
 </body>
 </html>
