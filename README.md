@@ -23,9 +23,15 @@ CSS3 – Theming, transitions, responsive layout, mobile UI.
 JavaScript – Game logic, canvas rendering, user input handling, theme management.
 
 🎮 How to Play
+
 Start the game: Snake moves automatically once started.
+
 Control the snake:
+
 Arrow keys on desktop.
+
 On-screen buttons on mobile.
+
 Goal: Eat food, grow longer, avoid crashing into walls or yourself.
+
 Restart: Click the "Restart" button after a game over.
