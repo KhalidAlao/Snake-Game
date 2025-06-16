@@ -27,8 +27,11 @@ A sleek, responsive, and theme-toggleable Snake Game built with HTML, CSS, and J
 /snake-game/
 │
 ├── index.html # Main HTML file
+
 ├── styles.css # Visual styling and responsive layout
+
 ├── script.js # Game logic and interaction handling
+
 └── README.md # Project overview and instructions
 
 
