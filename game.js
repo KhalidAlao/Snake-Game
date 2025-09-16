@@ -13,7 +13,7 @@ const downBtn = document.getElementById('down-btn');
 let snake, dx, dy, foodX, foodY, score, gameLoop;
 let highScore = localStorage.getItem('highScore') || 0;
 const gridSize = 15;
-const gameSpeed = 100;
+let gameSpeed = 100;
 let lastSpeedIncreaseScore = 0;
 let gameRunning = true;
 
