@@ -1,1 +1,1 @@
-console.log("boot: modules will be loaded later");
+import { gridSize } from "./constants";
