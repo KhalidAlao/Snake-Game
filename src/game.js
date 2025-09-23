@@ -1,5 +1,5 @@
 import {GRID_SIZE, BASE_GAME_SPEED,FOOD_POINT,SPEED_INCREASE_AMOUNT, SPEED_INCREASE_THRESHOLD,KEY_DOWN, KEY_LEFT,KEY_RIGHT,KEY_UP } from "./constants.js";
-
+import { clearCanvas, drawSnake, drawSnakePart , drawFood } from "./renderer.js";
 
 
 const canvas = document.getElementById("gameCanvas");
@@ -69,18 +69,6 @@ function setupEventListeners() {
     downBtn.addEventListener('click', () => changeDirection({ keyCode: KEY_DOWN }));
 }
 
-function drawSnakePart(part, index) {
-    ctx.fillStyle = index === 0
-        ? getComputedStyle(document.documentElement).getPropertyValue('--snake-head')
-        : getComputedStyle(document.documentElement).getPropertyValue('--snake');
-    ctx.fillRect(part.x, part.y, GRID_SIZE, GRID_SIZE);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
-    ctx.strokeRect(part.x, part.y, GRID_SIZE, GRID_SIZE);
-}
-
-function drawSnake() {
-    snake.forEach((part, index) => drawSnakePart(part, index));
-}
 
 function advanceSnake() {
     const head = { x: snake[0].x + dx, y: snake[0].y + dy };
@@ -118,35 +106,7 @@ function createFood() {
     } while (snake.some(part => part.x === foodX && part.y === foodY));
 }
 
-function clearCanvas() {
-    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-bg');
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.strokeStyle = "rgba(128, 128, 128, 0.1)";
-    ctx.lineWidth = 0.5;
-    for (let x = 0; x <= canvas.width; x += GRID_SIZE) {
-        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
-    }
-    for (let y = 0; y <= canvas.height; y += GRID_SIZE) {
-        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
-    }
-
-    ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-border');
-    ctx.lineWidth = 2;
-    ctx.strokeRect(0, 0, canvas.width, canvas.height);
-}
-
-function drawFood() {
-    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--food');
-    ctx.beginPath();
-    ctx.arc(foodX + GRID_SIZE / 2, foodY + GRID_SIZE / 2, GRID_SIZE / 2 - 2, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-    ctx.beginPath();
-    ctx.arc(foodX + GRID_SIZE / 3, foodY + GRID_SIZE / 3, GRID_SIZE / 6, 0, Math.PI * 2);
-    ctx.fill();
-}
 
 function didGameEnd() {
     for (let i = 4; i < snake.length; i++) {
