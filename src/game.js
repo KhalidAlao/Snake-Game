@@ -1,5 +1,6 @@
-import {GRID_SIZE, BASE_GAME_SPEED,FOOD_POINT,SPEED_INCREASE_AMOUNT, SPEED_INCREASE_THRESHOLD,KEY_DOWN, KEY_LEFT,KEY_RIGHT,KEY_UP } from "./constants.js";
-import { clearCanvas, drawSnake, drawSnakePart , drawFood } from "./renderer.js";
+import {GRID_SIZE,FOOD_POINT,SPEED_INCREASE_AMOUNT, SPEED_INCREASE_THRESHOLD,KEY_DOWN, KEY_LEFT,KEY_RIGHT,KEY_UP } from "./constants.js";
+import { clearCanvas, drawSnake, drawFood } from "./renderer.js";
+import { setDimensions, initGame, getState, step, registerListener} from "./logic.js";
 
 
 const canvas = document.getElementById("gameCanvas");
@@ -20,30 +21,30 @@ let lastSpeedIncreaseScore = 0;
 let gameRunning = true;
 let currentGameSpeed;
 
+
+
+
+function setupGame() {
+    
+
+    setDimensions(canvas.width, canvas.height);
+    initGame(canvas.width, canvas.height);
+
+    registerListener(); // Activates the keyboard controls
+
+    setInterval(gameLoop, 100);
+}
+
+
+
+initGame();
+
+
 function resizeCanvas() {
     const size = Math.min(canvas.parentElement.offsetWidth, canvas.parentElement.offsetHeight);
     canvas.width = size;
     canvas.height = size;
     resetGame();
-}
-
-function initGame() {
-    const midX = Math.floor(canvas.width / 2 / GRID_SIZE) * GRID_SIZE;
-    const midY = Math.floor(canvas.height / 2 / GRID_SIZE) * GRID_SIZE;
-    snake = Array.from({ length: 5 }, (_, i) => ({ x: midX - i * GRID_SIZE, y: midY }));
-
-    dx = GRID_SIZE;
-    dy = 0;
-    score = 0;
-    currentGameSpeed = BASE_GAME_SPEED;
-
-    document.getElementById('score').textContent = `Score: ${score}`;
-    document.getElementById('high-score').textContent = `High Score: ${highScore}`;
-    createFood();
-    if (gameLoop) clearTimeout(gameLoop);
-    clearCanvas();
-    drawFood();
-    drawSnake();
 }
 
 function resetGame() {
@@ -143,9 +144,11 @@ function main() {
 
     gameLoop = setTimeout(() => {
         clearCanvas();
+        step(canvas);
+        getState();
         advanceSnake();
-        drawFood();
-        drawSnake();
+        drawFood(ctx);
+        drawSnake(ctx);
         main();
     },  currentGameSpeed);
 }
