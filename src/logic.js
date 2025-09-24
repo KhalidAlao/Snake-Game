@@ -38,7 +38,7 @@ export function getState() {
         snake,
         food: { x: foodX, y: foodY },
         score,
-        gameRunning
+        running: gameRunning
     };
 
 }; // Describes current game state
