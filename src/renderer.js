@@ -1,5 +1,5 @@
 import { GRID_SIZE } from "./constants.js";
-import { getState } from "./logic.js";
+
 
 export function clearCanvas(ctx, canvas) {
     ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-bg');
@@ -29,7 +29,7 @@ export function drawSnakePart(ctx, part, index) {
 }
 
 export function drawSnake(snake) {
-    const { snake } = getState();
+    
     snake.forEach((part, index) => {
         ctx.fillStyle = index === 0
             ? getComputedStyle(document.documentElement).getPropertyValue('--snake-head')
@@ -42,7 +42,7 @@ export function drawSnake(snake) {
 }
 
 export function drawFood(food) {
-    const { food } = getState();
+    
     ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--food');
     ctx.beginPath();
     ctx.arc(food.x + GRID_SIZE / 2, food.y + GRID_SIZE / 2, GRID_SIZE / 2 - 2, 0, Math.PI * 2);
