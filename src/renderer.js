@@ -28,7 +28,7 @@ export function drawSnakePart(ctx, part, index) {
     ctx.strokeRect(part.x, part.y, GRID_SIZE, GRID_SIZE);
 }
 
-export function drawSnake(ctx) {
+export function drawSnake(snake) {
     const { snake } = getState();
     snake.forEach((part, index) => {
         ctx.fillStyle = index === 0
@@ -41,7 +41,7 @@ export function drawSnake(ctx) {
     });
 }
 
-export function drawFood(ctx) {
+export function drawFood(food) {
     const { food } = getState();
     ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--food');
     ctx.beginPath();
