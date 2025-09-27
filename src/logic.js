@@ -1,4 +1,4 @@
-import { GRID_SIZE, KEY_LEFT, KEY_UP, KEY_RIGHT, KEY_DOWN} from "./constants";
+import { GRID_SIZE, KEY_LEFT, KEY_UP, KEY_RIGHT, KEY_DOWN} from "./constants.js";
 
 let snake, dx, dy, foodX, foodY, score, gameRunning;
 let gameWidth, gameHeight;

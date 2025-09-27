@@ -145,13 +145,10 @@ function main() {
     gameLoop = setTimeout(() => {
 
         step(canvas);
-        const state = getState();
-
-
-        clearCanvas();
-        
-        getState();
         advanceSnake();
+        const state = getState();
+        clearCanvas();
+        getState();
         drawFood(state.food);
         drawSnake(state.snake);
         main();
