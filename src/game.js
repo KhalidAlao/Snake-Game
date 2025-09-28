@@ -152,7 +152,6 @@ function main() {
         drawSnake(state.snake);
         requestAnimationFrame(gameLoop); // schedule next frame
 
-
     },  currentGameSpeed);
 }
 
