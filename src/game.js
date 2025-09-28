@@ -1,4 +1,4 @@
-import {GRID_SIZE,FOOD_POINT,SPEED_INCREASE_AMOUNT, SPEED_INCREASE_THRESHOLD,KEY_DOWN, KEY_LEFT,KEY_RIGHT,KEY_UP } from "./constants.js";
+import {GRID_SIZE,FOOD_POINT,SPEED_INCREASE_AMOUNT, SPEED_INCREASE_THRESHOLD,KEY_DOWN, KEY_LEFT,KEY_RIGHT,KEY_UP, MIN_MOVE_INTERVAL } from "./constants.js";
 import { clearCanvas, drawSnake, drawFood } from "./renderer.js";
 import { setDimensions, initGame, getState, step, registerListener} from "./logic.js";
 
@@ -20,6 +20,8 @@ let highScore = localStorage.getItem('highScore') || 0;
 let lastSpeedIncreaseScore = 0;
 let gameRunning = true;
 let currentGameSpeed;
+let lastMoveTime = 0;    // keeps track of the last time the snake moved
+let moveInterval = 200;  // initial milliseconds between snake moves
 
 
 
@@ -117,6 +119,25 @@ function didGameEnd() {
     return head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height;
 }
 
+
+function gameLoop(timestamp) {
+    if (!lastMoveTime) lastMoveTime = timestamp; // initialize first frame
+    const delta = timestamp - lastMoveTime;
+
+    if (delta > moveInterval) {
+        step();                     // update the game state
+        lastMoveTime = timestamp;   // reset the last move time
+    }
+
+    const state = getState();       // get the updated state
+    clearCanvas();
+    drawFood(state.food);
+    drawSnake(state.snake);
+
+    if (gameRunning) requestAnimationFrame(gameLoop);
+}
+
+
 function main() {
     if (didGameEnd()) {
         if (gameRunning) {
@@ -131,28 +152,18 @@ function main() {
         return;
     }
     
-
+    requestAnimationFrame(gameLoop);
+    
     if (score > highScore) {
         highScore = score;
         localStorage.setItem('highScore', highScore);
     }
-
-    if (score % SPEED_INCREASE_THRESHOLD === 0 && score !== 0 && score !== lastSpeedIncreaseScore) {
-        currentGameSpeed -= SPEED_INCREASE_AMOUNT;
+    if (score % SPEED_INCREASE_THRESHOLD === 0 && score !== lastSpeedIncreaseScore) {
+        moveInterval = Math.max(MIN_MOVE_INTERVAL, moveInterval - SPEED_INCREASE_AMOUNT);
         lastSpeedIncreaseScore = score;
     }
 
-    gameLoop = setTimeout(() => {
-
-        step(canvas);              // update state
-        if (!gameRunning) return;  // stop if the game ended
-        const state = getState();  // get the updated state
-        clearCanvas();             // prepare the canvas
-        drawFood(state.food);      // draw based on state
-        drawSnake(state.snake);
-        requestAnimationFrame(gameLoop); // schedule next frame
-
-    },  currentGameSpeed);
+    
 }
 
 window.addEventListener('load', () => {
