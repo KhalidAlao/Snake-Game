@@ -144,14 +144,15 @@ function main() {
 
     gameLoop = setTimeout(() => {
 
-        step(canvas);
-        advanceSnake();
-        const state = getState();
-        clearCanvas();
-        getState();
-        drawFood(state.food);
+        step(canvas);              // update state
+        if (!gameRunning) return;  // stop if the game ended
+        const state = getState();  // get the updated state
+        clearCanvas();             // prepare the canvas
+        drawFood(state.food);      // draw based on state
         drawSnake(state.snake);
-        main();
+        requestAnimationFrame(gameLoop); // schedule next frame
+
+
     },  currentGameSpeed);
 }
 
