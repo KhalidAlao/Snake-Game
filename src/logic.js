@@ -41,15 +41,13 @@ export function getState() {
 }
 
 
-
-// --- Core functions ---
 export function step(canvas, deltaTime) {
     // accumulate time
     moveAccumulator += deltaTime;
 
     // only update if enough time has passed
-    if (moveAccumulator >= moveInterval) {
-        moveAccumulator = 0;
+    while (moveAccumulator >= moveInterval) {
+        moveAccumulator -= moveInterval;
 
         // new head position
         const head = { x: snake[0].x + dx, y: snake[0].y + dy };
