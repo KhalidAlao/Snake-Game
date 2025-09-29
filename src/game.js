@@ -25,17 +25,6 @@ let lastTime = 0;    // keeps track of the last time the snake moved
 
 
 
-function setupGame() {
-    
-
-    setDimensions(canvas.width, canvas.height);
-    initGame(canvas.width, canvas.height);
-
-    registerListener(); // Activates the keyboard controls
-
-    setInterval(gameLoop, 100);
-}
-
 
 
 initGame();
