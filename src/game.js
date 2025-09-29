@@ -1,6 +1,6 @@
 import {GRID_SIZE,FOOD_POINT,SPEED_INCREASE_AMOUNT, SPEED_INCREASE_THRESHOLD,KEY_DOWN, KEY_LEFT,KEY_RIGHT,KEY_UP, MIN_MOVE_INTERVAL } from "./constants.js";
 import { clearCanvas, drawSnake, drawFood } from "./renderer.js";
-import { setDimensions, initGame, getState, step, registerListener} from "./logic.js";
+import { setDimensions, initGame, getState, step, registerListener, moveInterval} from "./logic.js";
 
 
 const canvas = document.getElementById("gameCanvas");
@@ -19,8 +19,8 @@ let snake, dx, dy, foodX, foodY, score, gameLoop;
 let highScore = localStorage.getItem('highScore') || 0;
 let lastSpeedIncreaseScore = 0;
 let gameRunning = true;
-let lastMoveTime = 0;    // keeps track of the last time the snake moved
-let moveInterval = 200;  // initial milliseconds between snake moves
+let lastTime = 0;    // keeps track of the last time the snake moved
+
 
 
 
@@ -72,18 +72,6 @@ function setupEventListeners() {
 }
 
 
-function advanceSnake() {
-    const head = { x: snake[0].x + dx, y: snake[0].y + dy };
-    snake.unshift(head);
-
-    if (head.x === foodX && head.y === foodY) {
-        score += FOOD_POINT;
-        document.getElementById('score').textContent = `Score: ${score}`;
-        createFood();
-    } else {
-        snake.pop();
-    }
-}
 
 function changeDirection(event) {
     if (!gameRunning) return;
@@ -97,16 +85,6 @@ function changeDirection(event) {
     if (key === KEY_DOWN && !goingUp) [dx, dy] = [0, GRID_SIZE];
 }
 
-function randomGridPosition(min, max) {
-    return Math.floor(Math.random() * (max - min) + min) * GRID_SIZE;
-}
-
-function createFood() {
-    do {
-        foodX = randomGridPosition(0, canvas.width / GRID_SIZE);
-        foodY = randomGridPosition(0, canvas.height / GRID_SIZE);
-    } while (snake.some(part => part.x === foodX && part.y === foodY));
-}
 
 
 
@@ -120,20 +98,18 @@ function didGameEnd() {
 
 
 function gameLoop(timestamp) {
-    if (!lastMoveTime) lastMoveTime = timestamp; // initialize first frame
-    const delta = timestamp - lastMoveTime;
+    const deltaTime = timestamp - lastTime;
+    lastTime = timestamp;
 
-    if (delta > moveInterval) {
-        step();                     // update the game state
-        lastMoveTime = timestamp;   // reset the last move time
-    }
+    step(canvas, deltaTime);           // update state
+    if (!gameRunning) return;          // stop if game ended
 
-    const state = getState();       // get the updated state
+    const state = getState();          // get updated state
     clearCanvas();
     drawFood(state.food);
     drawSnake(state.snake);
 
-    if (gameRunning) requestAnimationFrame(gameLoop);
+    requestAnimationFrame(gameLoop);   // next frame
 }
 
 

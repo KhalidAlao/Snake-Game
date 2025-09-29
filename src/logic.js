@@ -3,6 +3,9 @@ import { GRID_SIZE, KEY_LEFT, KEY_UP, KEY_RIGHT, KEY_DOWN} from "./constants.js"
 let snake, dx, dy, foodX, foodY, score, gameRunning;
 let gameWidth, gameHeight;
 
+let moveInterval = 200; // start speed (ms between moves)
+let moveAccumulator = 0; // tracks time between last move 
+
 
 
 function createFood() {
@@ -32,33 +35,42 @@ export function initGame() {
     console.log("Game initialized", snake, { foodX, foodY }, "score:", score);
 };
 
+// Describes current game state
 export function getState() {
+    return { snake, food: { x: foodX, y: foodY }, score };
+}
 
-    return {
-        snake,
-        food: { x: foodX, y: foodY },
-        score,
-        running: gameRunning
-    };
 
-}; // Describes current game state
 
-export function step(canvas) {
-    // new head position
-    const head = { x: snake[0].x + dx, y: snake[0].y + dy };
-  
-    // add new head at front
-    snake.unshift(head);
-  
-    // check food
-    if (head.x === foodX && head.y === foodY) {
-      score++;
-      placeFood(canvas);
-    } else {
-      // remove tail if no food eaten
-      snake.pop();
+// --- Core functions ---
+export function step(canvas, deltaTime) {
+    // accumulate time
+    moveAccumulator += deltaTime;
+
+    // only update if enough time has passed
+    if (moveAccumulator >= moveInterval) {
+        moveAccumulator = 0;
+
+        // new head position
+        const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+        snake.unshift(head);
+
+        // check food
+        if (head.x === foodX && head.y === foodY) {
+            score++;
+            placeFood(canvas);
+
+            // 🎯 increase speed every 100 points
+            if (score % 100 === 0) {
+                moveInterval = Math.max(50, moveInterval - 20);
+            }
+        } else {
+            // remove tail if no food eaten
+            snake.pop();
+        }
     }
-  }
+}
+
 
   export function changeDirection(keyCode) {
     if (!gameRunning) return;
