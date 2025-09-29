@@ -19,7 +19,6 @@ let snake, dx, dy, foodX, foodY, score, gameLoop;
 let highScore = localStorage.getItem('highScore') || 0;
 let lastSpeedIncreaseScore = 0;
 let gameRunning = true;
-let currentGameSpeed;
 let lastMoveTime = 0;    // keeps track of the last time the snake moved
 let moveInterval = 200;  // initial milliseconds between snake moves
 
@@ -153,7 +152,7 @@ function main() {
     }
     
     requestAnimationFrame(gameLoop);
-    
+
     if (score > highScore) {
         highScore = score;
         localStorage.setItem('highScore', highScore);
