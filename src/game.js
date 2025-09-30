@@ -1,6 +1,6 @@
 import {GRID_SIZE,SPEED_INCREASE_AMOUNT, SPEED_INCREASE_THRESHOLD,KEY_DOWN, KEY_LEFT,KEY_RIGHT,KEY_UP, MIN_MOVE_INTERVAL } from "./constants.js";
 import { clearCanvas, drawSnake, drawFood } from "./renderer.js";
-import { setDimensions, initGame, getState, step, registerListener, moveInterval, snake, dx, dy, foodX, foodY, score, gameRunning} from "./logic.js";
+import { setDimensions, initGame, getState, step, registerListener, moveInterval, snake, dx, dy, foodX, foodY, score, gameRunning, changeDirection} from "./logic.js";
 
 
 const canvas = document.getElementById("gameCanvas");
@@ -55,20 +55,6 @@ function setupEventListeners() {
     leftBtn.addEventListener('click', () => changeDirection({ keyCode: KEY_LEFT }));
     rightBtn.addEventListener('click', () => changeDirection({ keyCode: KEY_RIGHT }));
     downBtn.addEventListener('click', () => changeDirection({ keyCode: KEY_DOWN }));
-}
-
-
-
-function changeDirection(event) {
-    if (!gameRunning) return;
-    const key = event.keyCode;
-    const goingUp = dy === -GRID_SIZE, goingDown = dy === GRID_SIZE;
-    const goingRight = dx === GRID_SIZE, goingLeft = dx === -GRID_SIZE;
-
-    if (key === KEY_LEFT && !goingRight) [dx, dy] = [-GRID_SIZE, 0];
-    if (key === KEY_UP && !goingDown) [dx, dy] = [0, -GRID_SIZE];
-    if (key === KEY_RIGHT && !goingLeft) [dx, dy] = [GRID_SIZE, 0];
-    if (key === KEY_DOWN && !goingUp) [dx, dy] = [0, GRID_SIZE];
 }
 
 
