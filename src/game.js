@@ -24,9 +24,6 @@ let lastTime = 0;    // keeps track of the last time the snake moved
 
 
 
-
-
-
 initGame();
 
 
