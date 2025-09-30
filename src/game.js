@@ -91,9 +91,9 @@ function gameLoop(timestamp) {
     if (!gameRunning) return;          // stop if game ended
 
     const state = getState();          // get updated state
-    clearCanvas();
-    drawFood(state.food);
-    drawSnake(state.snake);
+    clearCanvas(ctx, canvas);
+    drawFood(ctx, state.food);
+    drawSnake(ctx, state.snake);
 
     requestAnimationFrame(gameLoop);   // next frame
 }
