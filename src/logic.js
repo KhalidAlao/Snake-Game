@@ -7,6 +7,15 @@ let moveInterval = 200; // start speed (ms between moves)
 let moveAccumulator = 0; // tracks time between last move 
 
 
+export function isGameRunning() {
+    return gameRunning;
+}
+export function endGame() {
+    gameRunning = false;
+}
+
+
+
 
 function createFood() {
     do {
