@@ -1,6 +1,6 @@
-import {GRID_SIZE,FOOD_POINT,SPEED_INCREASE_AMOUNT, SPEED_INCREASE_THRESHOLD,KEY_DOWN, KEY_LEFT,KEY_RIGHT,KEY_UP, MIN_MOVE_INTERVAL } from "./constants.js";
+import {GRID_SIZE,SPEED_INCREASE_AMOUNT, SPEED_INCREASE_THRESHOLD,KEY_DOWN, KEY_LEFT,KEY_RIGHT,KEY_UP, MIN_MOVE_INTERVAL } from "./constants.js";
 import { clearCanvas, drawSnake, drawFood } from "./renderer.js";
-import { setDimensions, initGame, getState, step, registerListener, moveInterval} from "./logic.js";
+import { setDimensions, initGame, getState, step, registerListener, moveInterval, snake, dx, dy, foodX, foodY, score, gameRunning} from "./logic.js";
 
 
 const canvas = document.getElementById("gameCanvas");
@@ -15,7 +15,7 @@ const leftBtn = document.getElementById('left-btn');
 const rightBtn = document.getElementById('right-btn');
 const downBtn = document.getElementById('down-btn');
 
-let snake, dx, dy, foodX, foodY, score, gameLoop;
+
 let highScore = localStorage.getItem('highScore') || 0;
 let lastSpeedIncreaseScore = 0;
 let gameRunning = true;
