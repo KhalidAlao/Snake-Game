@@ -1,6 +1,6 @@
 import {GRID_SIZE,SPEED_INCREASE_AMOUNT, SPEED_INCREASE_THRESHOLD,KEY_DOWN, KEY_LEFT,KEY_RIGHT,KEY_UP, MIN_MOVE_INTERVAL } from "./constants.js";
 import { clearCanvas, drawSnake, drawFood } from "./renderer.js";
-import { setDimensions, initGame, getState, step, registerListener, moveInterval, snake, dx, dy, foodX, foodY, score, gameRunning, changeDirection} from "./logic.js";
+import { setDimensions, initGame, getState, step, registerListener, moveInterval, snake, dx, dy, foodX, foodY, score, gameRunning, changeDirection, isGameRunning} from "./logic.js";
 
 
 const canvas = document.getElementById("gameCanvas");
@@ -74,7 +74,7 @@ function gameLoop(timestamp) {
     lastTime = timestamp;
 
     step(canvas, deltaTime);           // update state
-    if (!gameRunning) return;          // stop if game ended
+    if (!isGameRunning()) return;         // stop if game ended
 
     const state = getState();          // get updated state
     clearCanvas(ctx, canvas);
