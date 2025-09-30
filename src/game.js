@@ -90,7 +90,6 @@ function gameLoop(timestamp) {
 
 
 function main() {
-    }
     lastTime = 0;
     requestAnimationFrame(gameLoop);
 }
