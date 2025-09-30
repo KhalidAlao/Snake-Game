@@ -105,11 +105,6 @@ function main() {
         highScore = score;
         localStorage.setItem('highScore', highScore);
     }
-    if (score % SPEED_INCREASE_THRESHOLD === 0 && score !== lastSpeedIncreaseScore) {
-        moveInterval = Math.max(MIN_MOVE_INTERVAL, moveInterval - SPEED_INCREASE_AMOUNT);
-        lastSpeedIncreaseScore = score;
-    }
-
     
 }
 
