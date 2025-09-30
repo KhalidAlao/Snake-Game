@@ -1,1 +1,0 @@
-import { gridSize } from "./constants";

@@ -1,7 +1,7 @@
-import {GRID_SIZE,SPEED_INCREASE_AMOUNT, SPEED_INCREASE_THRESHOLD,KEY_DOWN, KEY_LEFT,KEY_RIGHT,KEY_UP, MIN_MOVE_INTERVAL } from "./constants.js";
+import { KEY_DOWN, KEY_LEFT,KEY_RIGHT,KEY_UP} from "./constants.js";
 import { clearCanvas, drawSnake, drawFood } from "./renderer.js";
-import { setDimensions, initGame, getState, step, registerListener, moveInterval, snake, dx, dy, foodX, foodY, score, gameRunning, changeDirection, isGameRunning} from "./logic.js";
-
+import { initGame, getState, step, snake, gameRunning, changeDirection, isGameRunning} from "./logic.js";
+import { showModal, hideModal } from "./modals.js";
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
@@ -17,8 +17,6 @@ const downBtn = document.getElementById('down-btn');
 
 
 let highScore = localStorage.getItem('highScore') || 0;
-let lastSpeedIncreaseScore = 0;
-let gameRunning = true;
 let lastTime = 0;    // keeps track of the last time the snake moved
 
 
@@ -73,40 +71,41 @@ function gameLoop(timestamp) {
     const deltaTime = timestamp - lastTime;
     lastTime = timestamp;
 
-    step(canvas, deltaTime);           // update state
-    if (!isGameRunning()) return;         // stop if game ended
+    if (!isPaused() && isGameRunning()) {
+        step(canvas, deltaTime); // only update state if not paused
+    }
+    
+    
+    if (!isGameRunning()) {
+        didGameEnd();
+    };// stop if game ended
 
-    const state = getState();          // get updated state
+    const state = getState();// get updated state
     clearCanvas(ctx, canvas);
     drawFood(ctx, state.food);
     drawSnake(ctx, state.snake);
 
-    requestAnimationFrame(gameLoop);   // next frame
+    requestAnimationFrame(gameLoop); // next frame
 }
 
 
 function main() {
-    if (didGameEnd()) {
-        if (gameRunning) {
-            gameRunning = false;
-            finalScore.textContent = `Score: ${score}`;
-    
-            saveScoreToLeaderboard(score);     
-            renderLeaderboard();               
-    
-            gameOverScreen.style.display = 'flex';
-        }
-        return;
     }
-    
+    lastTime = 0;
     requestAnimationFrame(gameLoop);
-
-    if (score > highScore) {
-        highScore = score;
-        localStorage.setItem('highScore', highScore);
-    }
-    
 }
+
+document.addEventListener("keydown", (e) => {
+    if (!isGameRunning()) return;  
+    if (e.key === 'p' || e.key === 'P') {
+        togglePause();
+        if (isPaused()) {
+            showModal("paused");
+        } else {
+            hideModal();
+        }
+    }
+});
 
 window.addEventListener('load', () => {
     resizeCanvas();

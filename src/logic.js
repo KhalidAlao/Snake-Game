@@ -1,10 +1,14 @@
 import { GRID_SIZE, KEY_LEFT, KEY_UP, KEY_RIGHT, KEY_DOWN} from "./constants.js";
 
-let snake, dx, dy, foodX, foodY, score, gameRunning;
+let snake, dx, dy, foodX, foodY, score;
+let gameRunning;
 let gameWidth, gameHeight;
 
 let moveInterval = 200; // start speed (ms between moves)
 let moveAccumulator = 0; // tracks time between last move 
+
+let paused = false;
+
 
 
 export function isGameRunning() {
@@ -13,8 +17,6 @@ export function isGameRunning() {
 export function endGame() {
     gameRunning = false;
 }
-
-
 
 
 function createFood() {
@@ -116,4 +118,12 @@ export function registerListener() {
     document.addEventListener("keydown", (event) => {
         changeDirection(event.keyCode);
     });
+}
+
+export function isPaused() {
+    return paused;
+}
+
+export function togglePause() {
+    paused = !paused;
 }

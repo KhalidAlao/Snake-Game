@@ -1,31 +1,30 @@
-function saveScoreToLeaderboard(score) {
-    let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+// leaderboard.js
+let entries = JSON.parse(localStorage.getItem('leaderboard')) || [];
 
-    // Add new score and sort
-    leaderboard.push(score);
-    leaderboard.sort((a, b) => b - a);
-
-    // Keep only top 5
-    leaderboard = leaderboard.slice(0, 5);
-
-    localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
-}
-
-function renderLeaderboard() {
-    let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
-    const list = document.getElementById('leaderboardList');
-    list.innerHTML = '';
-
-    if (leaderboard.length === 0) {
-        const li = document.createElement('li');
-        li.textContent = "No scores yet.";
-        list.appendChild(li);
-        return;
+export function addOrUpdateEntry(name, score) {
+    // Check if this score is already on the leaderboard for this player
+    const existing = entries.find(e => e.name === name);
+    if (existing) {
+        if (score > existing.score) existing.score = score; // only update if higher
+    } else {
+        entries.push({ name, score });
     }
 
-    leaderboard.forEach((score, index) => {
-        const li = document.createElement('li');
-        li.textContent =`${score}`;
-        list.appendChild(li);
-    });
+    // Sort descending by score
+    entries.sort((a,b) => b.score - a.score);
+
+    // Keep top 5
+    entries = entries.slice(0, 5);
+
+    // Persist
+    localStorage.setItem('leaderboard', JSON.stringify(entries));
+}
+
+export function getEntries() {
+    return entries;
+}
+
+export function clearLeaderboard() {
+    entries = [];
+    localStorage.removeItem('leaderboard');
 }
