@@ -1,6 +1,4 @@
-
-
-export const GRID_SIZE = 15;
+export const GRID_SIZE = 20;
 
 export const KEY_LEFT = 37;
 export const KEY_UP = 38;

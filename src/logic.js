@@ -1,161 +1,74 @@
-import { GRID_SIZE, KEY_LEFT, KEY_UP, KEY_RIGHT, KEY_DOWN} from "./constants.js";
-import { hideModal } from "./modals.js";
+import { GRID_SIZE, KEY_LEFT, KEY_UP, KEY_RIGHT, KEY_DOWN } from "./constants.js";
 
-
-let snake;
-let gameRunning;
-
-let dx, dy, foodX, foodY, score;
-
-let gameWidth, gameHeight;
-
-let moveInterval = 200; // start speed (ms between moves)
-let moveAccumulator = 0; // tracks time between last move 
-
+let snake = [];
+let dx = GRID_SIZE, dy = 0;
+let food = { x: 0, y: 0 };
+let gameRunning = false;
 let paused = false;
+let width = 0, height = 0;
 
-
-
-
-
-function isGameRunning() {
-    return gameRunning;
-}
-function endGame() {
-    gameRunning = false;
+export function setDimensions(w, h) {
+    width = w; 
+    height = h;
 }
 
-
-function createFood() {
-    do {
-        foodX = Math.floor(Math.random() * (gameWidth / GRID_SIZE)) * GRID_SIZE;
-        foodY = Math.floor(Math.random() * (gameHeight / GRID_SIZE)) * GRID_SIZE;
-    } while (snake?.some(part => part.x === foodX && part.y === foodY));
-}
-
-
-
-function initGame() {
-
-    // Reset snake position
-    const midX = Math.floor(gameWidth / 2 / GRID_SIZE) * GRID_SIZE;
-    const midY = Math.floor(gameHeight / 2 / GRID_SIZE) * GRID_SIZE;
-    snake = Array.from({ length: 5 }, (_, i) => ({ x: midX - i * GRID_SIZE, y: midY }));
-
-    // Reset movement and score
-    dx = GRID_SIZE;
-    dy = 0;
-    score = 0;
+export function initGame() {
+    const midX = Math.floor(width/2/GRID_SIZE)*GRID_SIZE;
+    const midY = Math.floor(height/2/GRID_SIZE)*GRID_SIZE;
+    snake = Array.from({ length: 5 }, (_, i) => ({ x: midX - i*GRID_SIZE, y: midY }));
+    dx = GRID_SIZE; dy = 0;
     gameRunning = true;
     paused = false;
-    
-    // Reset game speed
-    moveInterval = 200;
-    moveAccumulator = 0;
-
     createFood();
-
-    console.log("Game initialized", snake, { foodX, foodY }, "score:", score);
-};
-
-// Describes current game state
- function getState() {
-    return { snake, food: { x: foodX, y: foodY }, score };
+    return getState();
 }
 
+export function getState() {
+    return { snake, food, score: snake.length*5 };
+}
 
- function step(canvas, deltaTime) {
-    // accumulate time
-    moveAccumulator += deltaTime;
+export function isGameRunning() { return gameRunning; }
+export function isPaused() { return paused; }
+export function togglePause() { paused = !paused; }
 
-    // only update if enough time has passed
-    while (moveAccumulator >= moveInterval) {
-        moveAccumulator -= moveInterval;
+export function getSnake() { return snake; }
+export function getFood() { return food; }
 
-        // new head position
-        const head = { x: snake[0].x + dx, y: snake[0].y + dy };
-        snake.unshift(head);
+export function step() {
+    if(!gameRunning) return false;
+    const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+    snake.unshift(head);
 
-        // check food
-        if (head.x === foodX && head.y === foodY) {
-            score += 5;
-
-            createFood();
-
-            // 🎯 increase speed every 50 points
-            if (score % 50 === 0) {
-                moveInterval = Math.max(50, moveInterval - 20);
-            }
-        } else {
-            // remove tail if no food eaten
-            snake.pop();
-        }
+    let ateFood = false;
+    if(head.x === food.x && head.y === food.y) {
+        ateFood = true;
+        createFood();
+    } else {
+        snake.pop();
     }
+
+    if(head.x < 0 || head.x >= width || head.y < 0 || head.y >= height
+        || snake.slice(1).some(p => p.x === head.x && p.y === head.y)) {
+        gameRunning = false;
+    }
+    return ateFood;
 }
 
-
- function changeDirection(event) {
-    if (!gameRunning) return;
-
+export function changeDirection(key) {
     const goingUp = dy === -GRID_SIZE;
     const goingDown = dy === GRID_SIZE;
     const goingRight = dx === GRID_SIZE;
     const goingLeft = dx === -GRID_SIZE;
 
-    // Support both keyCode and modern key properties
-    const key = event.keyCode || event.key;
-    
-    if ((key === KEY_LEFT || key === 'ArrowLeft') && !goingRight) {
-        dx = -GRID_SIZE;
-        dy = 0;
-        console.log("Moving LEFT");
-    }
-    else if ((key === KEY_UP || key === 'ArrowUp') && !goingDown) {
-        dx = 0;
-        dy = -GRID_SIZE;
-        console.log("Moving UP");
-    }
-    else if ((key === KEY_RIGHT || key === 'ArrowRight') && !goingLeft) {
-        dx = GRID_SIZE;
-        dy = 0;
-        console.log("Moving RIGHT");
-    }
-    else if ((key === KEY_DOWN || key === 'ArrowDown') && !goingUp) {
-        dx = 0;
-        dy = GRID_SIZE;
-        console.log("Moving DOWN");
-    }
+    if ((key === KEY_LEFT || key === 'ArrowLeft') && !goingRight) { dx=-GRID_SIZE; dy=0; }
+    if ((key === KEY_UP || key === 'ArrowUp') && !goingDown) { dx=0; dy=-GRID_SIZE; }
+    if ((key === KEY_RIGHT || key === 'ArrowRight') && !goingLeft) { dx=GRID_SIZE; dy=0; }
+    if ((key === KEY_DOWN || key === 'ArrowDown') && !goingUp) { dx=0; dy=GRID_SIZE; }
 }
 
-
- function setDimensions(width, height) {
-    gameWidth = width;
-    gameHeight = height;
-};
-
-
-
- function isPaused() {
-    return paused;
+function createFood() {
+    do {
+        food.x = Math.floor(Math.random() * (width/GRID_SIZE)) * GRID_SIZE;
+        food.y = Math.floor(Math.random() * (height/GRID_SIZE)) * GRID_SIZE;
+    } while(snake.some(p => p.x === food.x && p.y === food.y));
 }
-
- function togglePause() {
-    paused = !paused;
-}
-
-export { 
-    snake, 
-    gameRunning, 
-    initGame, 
-    getState, 
-    step, 
-    changeDirection, 
-    isGameRunning, 
-    endGame,
-    isPaused,
-    togglePause,
-    setDimensions,
-   
-
-    
-};

@@ -1,216 +1,114 @@
-import { KEY_DOWN, KEY_LEFT,KEY_RIGHT,KEY_UP} from "./constants.js";
+import { initGame, step, changeDirection, getSnake, getFood, isGameRunning, isPaused, togglePause, setDimensions } from "./logic.js";
 import { clearCanvas, drawSnake, drawFood } from "./renderer.js";
-import { 
-    initGame, 
-    getState, 
-    step, 
-    snake, 
-    gameRunning, 
-    changeDirection, 
-    isGameRunning,
-    endGame,
-    isPaused,
-    togglePause,
-    setDimensions, 
-
-
-} from "./logic.js";
-import { showModal, hideModal } from "./modals.js";
-import { getEntries, checkAndAddHighScore } from "./leaderboard.js";
+import { addOrUpdateEntry, qualifiesForLeaderboard } from "./leaderboard.js";
+import { showLeaderboard, initLeaderboardUI } from "./leaderboardUI.js";
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
-const playAgainBtn = document.getElementById("restart-game");
-const restartGameBtn = document.getElementById("restart-btn");
-const gameOverScreen = document.getElementById("game-over");
-const finalScore = document.getElementById("final-score");
 
-const upBtn = document.getElementById('up-btn');
-const leftBtn = document.getElementById('left-btn');
-const rightBtn = document.getElementById('right-btn');
-const downBtn = document.getElementById('down-btn');
+let score = 0;
+let highScore = 0;
+let accumulator = 0;
+let moveInterval = 200;
+let lastTime;
 
+// Game Over overlay
+const gameOverOverlay = document.getElementById("game-over");
+const finalScoreEl = document.getElementById("final-score");
+const playAgainBtn = document.getElementById("play-again-btn");
+const showLeaderboardBtn = document.getElementById("show-leaderboard-btn");
 
-let lastTime = 0;    // keeps track of the last time the snake moved
-let gameAnimationFrame = null;
-
-
-function main() {
-    
-    lastTime = 0;
-    
-    // Cancel any existing game loop
-    if (gameAnimationFrame) {
-        cancelAnimationFrame(gameAnimationFrame);
-    }
-    
-    // Start new game loop
-    gameAnimationFrame = requestAnimationFrame(gameLoop);
-}
-
-function resetGame() {
-
-    if (gameAnimationFrame) {
-        cancelAnimationFrame(gameAnimationFrame);
-        gameAnimationFrame = null;
-    }
-    
-    // Reset UI elements
-    gameOverScreen.style.display = 'none';
-    hideModal();
-    
-    // Reset game state
-    initGame();
-    
-    // Reset game loop variables
-    lastTime = 0;
-    
-    // Restart the game loop
-    main();
-}
-
-
-
-
-
-function resizeCanvas() {
-    const size = Math.min(canvas.parentElement.offsetWidth, canvas.parentElement.offsetHeight);
-    canvas.width = size;
-    canvas.height = size;
-    
-    // Set the game dimensions in the logic module
+function resize(){
+    canvas.width = Math.floor(window.innerWidth*0.8/20)*20;
+    canvas.height = Math.floor(window.innerHeight*0.6/20)*20;
     setDimensions(canvas.width, canvas.height);
-    
-    // Only reset if game is already running
-    if (isGameRunning()) {
-        resetGame();
+}
+window.addEventListener("resize", resize);
+
+function updateScore(s){ document.getElementById("score").textContent=`Score: ${s}`; }
+function updateHighScore(){ document.getElementById("high-score").textContent=`High Score: ${highScore}`; }
+
+function handleGameOver(){
+    highScore = Math.max(highScore, score);
+    updateHighScore();
+
+    finalScoreEl.textContent = `Score: ${score}`;
+    gameOverOverlay.classList.remove("hidden");
+
+    if(qualifiesForLeaderboard(score)){
+        const name = prompt(`Congratulations on a top 5 score! Score: ${score}. Enter name:`)?.trim();
+        if(name) addOrUpdateEntry(name, score);
     }
 }
 
+// Play Again
+playAgainBtn.addEventListener("click", () => {
+    gameOverOverlay.classList.add("hidden");
+    startGame();
+});
 
-function gameLoop(timestamp) {
-    // Store the animation frame ID
-    gameAnimationFrame = requestAnimationFrame(gameLoop);
+// Show Leaderboard from overlay
+showLeaderboardBtn.addEventListener("click", () => showLeaderboard());
 
-    if (!isGameRunning() && !isPaused()) {
-        return;
-    }
-
-    const deltaTime = timestamp - lastTime;
+function mainLoop(timestamp){
+    if(!lastTime) lastTime = timestamp;
+    const delta = timestamp - lastTime;
     lastTime = timestamp;
 
-    if (!isPaused() && isGameRunning()) {
-        step(canvas, deltaTime);
-        
-        // Only check for game end if game is actually running
-        if (isGameRunning()) {
-            didGameEnd();
+    if(isGameRunning() && !isPaused()){
+        accumulator += delta;
+        while(accumulator >= moveInterval){
+            accumulator -= moveInterval;
+            const ate = step();
+            if(ate){
+                score += 5;
+                updateScore(score);
+                if(score % 50 === 0) moveInterval = Math.max(50, moveInterval - 20);
+            }
+            if(!isGameRunning()){
+                handleGameOver();
+                break;
+            }
         }
-    }
-
-    const state = getState();
-
-    const scoreElement = document.getElementById("score");
-    if (scoreElement) {
-        scoreElement.textContent = `Score: ${state.score}`;
     }
 
     clearCanvas(ctx, canvas);
-    drawFood(ctx, state.food);
-    drawSnake(ctx, state.snake);
+    drawSnake(ctx, getSnake());
+    drawFood(ctx, getFood());
+    updateScore(score);
+
+    requestAnimationFrame(mainLoop);
 }
 
-
-function showLeaderboard() {
-    const entries = getEntries();
-    showModal('leaderboard', { entries });
-}
-
-function setupEventListeners() {
-    document.addEventListener("keydown", (e) => {
-       
-        if (!isGameRunning()) return;  
-       
-        // Handle arrow keys for movement
-        if ([KEY_LEFT, KEY_UP, KEY_RIGHT, KEY_DOWN].includes(e.keyCode)) {
-            e.preventDefault();
-            changeDirection(e);
-        }
-        // Handle pause key
-        else if (e.key === 'p' || e.key === 'P') {
-            e.preventDefault();
-            
-            togglePause();
-            if (isPaused()) {
-                showModal("paused");
-            } else {
-                hideModal();
-            }
-        }
-    });
-
-    // Add click handlers
-    playAgainBtn.addEventListener("click", () => {
-        
-        resetGame();
-    });
-    
-    restartGameBtn.addEventListener("click", () => {
-        
-        resetGame();
-    });
-
-    // Mobile controls
-    upBtn.addEventListener('click', () => changeDirection({ keyCode: KEY_UP }));
-    leftBtn.addEventListener('click', () => changeDirection({ keyCode: KEY_LEFT }));
-    rightBtn.addEventListener('click', () => changeDirection({ keyCode: KEY_RIGHT }));
-    downBtn.addEventListener('click', () => changeDirection({ keyCode: KEY_DOWN }));
-}
-
-function didGameEnd() {
-    const head = snake[0];
-    
-    // Check wall collision
-    const hitWall = head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height;
-    
-    // Check self collision (starting from index 4 to ignore the head and immediate neck)
-    let hitSelf = false;
-    for (let i = 4; i < snake.length; i++) {
-        if (snake[i].x === head.x && snake[i].y === head.y) {
-            hitSelf = true;
-            break;
-        }
-    }
-    
-    if (hitWall || hitSelf) {
-        endGame(); // This sets gameRunning = false
-        finalScore.textContent = `Score: ${getState().score}`;
-        gameOverScreen.style.display = 'block';
-         // Check if it's a high score and prompt for name if it is
-         const currentScore = getState().score;
-         const isHighScore = checkAndAddHighScore(currentScore);
-         
-         // Only show leaderboard if it was actually a high score
-         if (isHighScore) {
-             showLeaderboard();
-         }
-         return true;
-    }
-    
-    return false;
-}
-
-
-
-
-
-
-
-
-window.addEventListener('load', () => {
-    resizeCanvas();
-    setupEventListeners();
+function startGame(){
     initGame();
-    main();
+    score = 0;
+    accumulator = 0;
+    moveInterval = 200;
+}
+
+window.addEventListener("keydown", e => {
+    if(e.key === 'p' || e.key === 'P') togglePause();
+    else changeDirection(e.keyCode || e.key);
+    if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key)) e.preventDefault();
 });
-window.addEventListener('resize', resizeCanvas);
+
+document.getElementById("up-btn").addEventListener("click", ()=>changeDirection("ArrowUp"));
+document.getElementById("down-btn").addEventListener("click", ()=>changeDirection("ArrowDown"));
+document.getElementById("left-btn").addEventListener("click", ()=>changeDirection("ArrowLeft"));
+document.getElementById("right-btn").addEventListener("click", ()=>changeDirection("ArrowRight"));
+
+// Dark/Light Mode
+const themeToggle = document.getElementById("theme-toggle");
+const themeLabel = document.getElementById("theme-label");
+themeToggle.addEventListener("click", () => {
+    const html = document.documentElement;
+    html.dataset.theme = html.dataset.theme === "dark" ? "light" : "dark";
+    themeLabel.textContent = html.dataset.theme==="dark" ? "Dark Mode" : "Light Mode";
+});
+
+// Initialize
+initLeaderboardUI();
+resize();
+startGame();
+requestAnimationFrame(mainLoop);

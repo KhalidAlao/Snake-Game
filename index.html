@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Snake Game</title>
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -10,49 +10,46 @@
     <div class="header">
         <h1>🐍 Snake Game</h1>
         <div class="theme-toggle" id="theme-toggle">
-            <span>Dark Mode</span>
-            <div class="toggle-switch"></div>
+            <span id="theme-label">Dark Mode</span>
+            <div class="toggle-switch" id="toggle-switch"></div>
         </div>
     </div>
-
 
     <div class="game-container">
         <div class="score-panel">
             <div id="score">Score: 0</div>
             <div id="high-score">High Score: 0</div>
-            <button id="restart-btn" class="restartBtn">Restart Game</button>
         </div>
-
         <div class="canvas-wrapper">
             <canvas id="gameCanvas"></canvas>
-            <div class="game-over" id="game-over">
+        
+            <!-- Game Over Overlay -->
+            <div class="game-over hidden" id="game-over">
                 <div>Game Over!</div>
                 <div class="final-score" id="final-score">Score: 0</div>
-                <button class="restart-game" id="restart-game">Play Again</button>
+                <button id="play-again-btn">Play Again</button>
+                <button id="show-leaderboard-btn">Leaderboard</button>
             </div>
         </div>
-        <!-- Modal Container -->
-<div id="modal" class="modal">
-    <div class="modal-content">
-        <!-- Modal content will be inserted here by JavaScript -->
-    </div>
-</div>
+        
+        <!-- Leaderboard Modal -->
+        <div class="modal hidden" id="modal">
+            <div class="modal-content">
+                <h1>Leaderboard</h1>
+                <ul id="leaderboardList"></ul>
+                <button id="closeLeaderboard">Close</button>
+            </div>
+        </div>
 
         <div class="mobile-controls">
-            <button class="mobile-btn up-btn" id="up-btn">↑</button>
-            <button class="mobile-btn left-btn" id="left-btn">←</button>
-            <button class="mobile-btn right-btn" id="right-btn">→</button>
-            <button class="mobile-btn down-btn" id="down-btn">↓</button>
-        </div>
-
-        <div class="instructions">
-            <p>Use arrow keys or buttons to control the snake. Press the P key to pause and unpause the game. Eat the red food to grow and earn points!</p>
+            <button class="mobile-btn" id="up-btn">↑</button>
+            <button class="mobile-btn" id="left-btn">←</button>
+            <button class="mobile-btn" id="right-btn">→</button>
+            <button class="mobile-btn" id="down-btn">↓</button>
         </div>
     </div>
 
-    <script type="module" src="./src/modals.js"></script> 
-    <script type="module" src="./src/leaderboard.js"></script> 
+   
     <script type="module" src="./src/game.js"></script>
-    <script type="module" src="./src/constants.js"></script>
 </body>
 </html>
