@@ -1,7 +1,12 @@
 import { GRID_SIZE, KEY_LEFT, KEY_UP, KEY_RIGHT, KEY_DOWN} from "./constants.js";
+import { hideModal } from "./modals.js";
 
-let snake, dx, dy, foodX, foodY, score;
+
+let snake;
 let gameRunning;
+
+let dx, dy, foodX, foodY, score;
+
 let gameWidth, gameHeight;
 
 let moveInterval = 200; // start speed (ms between moves)
@@ -11,10 +16,12 @@ let paused = false;
 
 
 
-export function isGameRunning() {
+
+
+function isGameRunning() {
     return gameRunning;
 }
-export function endGame() {
+function endGame() {
     gameRunning = false;
 }
 
@@ -28,18 +35,23 @@ function createFood() {
 
 
 
+function initGame() {
 
-export function initGame() {
-
-    // Position the snake in the middle of the grid
+    // Reset snake position
     const midX = Math.floor(gameWidth / 2 / GRID_SIZE) * GRID_SIZE;
     const midY = Math.floor(gameHeight / 2 / GRID_SIZE) * GRID_SIZE;
     snake = Array.from({ length: 5 }, (_, i) => ({ x: midX - i * GRID_SIZE, y: midY }));
 
+    // Reset movement and score
     dx = GRID_SIZE;
     dy = 0;
     score = 0;
     gameRunning = true;
+    paused = false;
+    
+    // Reset game speed
+    moveInterval = 200;
+    moveAccumulator = 0;
 
     createFood();
 
@@ -47,12 +59,12 @@ export function initGame() {
 };
 
 // Describes current game state
-export function getState() {
+ function getState() {
     return { snake, food: { x: foodX, y: foodY }, score };
 }
 
 
-export function step(canvas, deltaTime) {
+ function step(canvas, deltaTime) {
     // accumulate time
     moveAccumulator += deltaTime;
 
@@ -66,11 +78,12 @@ export function step(canvas, deltaTime) {
 
         // check food
         if (head.x === foodX && head.y === foodY) {
-            score++;
-            placeFood(canvas);
+            score += 5;
 
-            // 🎯 increase speed every 100 points
-            if (score % 100 === 0) {
+            createFood();
+
+            // 🎯 increase speed every 50 points
+            if (score % 50 === 0) {
                 moveInterval = Math.max(50, moveInterval - 20);
             }
         } else {
@@ -81,7 +94,7 @@ export function step(canvas, deltaTime) {
 }
 
 
-  export function changeDirection(keyCode) {
+ function changeDirection(event) {
     if (!gameRunning) return;
 
     const goingUp = dy === -GRID_SIZE;
@@ -89,41 +102,60 @@ export function step(canvas, deltaTime) {
     const goingRight = dx === GRID_SIZE;
     const goingLeft = dx === -GRID_SIZE;
 
-    if (keyCode === KEY_LEFT && !goingRight) {
+    // Support both keyCode and modern key properties
+    const key = event.keyCode || event.key;
+    
+    if ((key === KEY_LEFT || key === 'ArrowLeft') && !goingRight) {
         dx = -GRID_SIZE;
         dy = 0;
+        console.log("Moving LEFT");
     }
-    if (keyCode === KEY_UP && !goingDown) {
+    else if ((key === KEY_UP || key === 'ArrowUp') && !goingDown) {
         dx = 0;
         dy = -GRID_SIZE;
+        console.log("Moving UP");
     }
-    if (keyCode === KEY_RIGHT && !goingLeft) {
+    else if ((key === KEY_RIGHT || key === 'ArrowRight') && !goingLeft) {
         dx = GRID_SIZE;
         dy = 0;
+        console.log("Moving RIGHT");
     }
-    if (keyCode === KEY_DOWN && !goingUp) {
+    else if ((key === KEY_DOWN || key === 'ArrowDown') && !goingUp) {
         dx = 0;
         dy = GRID_SIZE;
+        console.log("Moving DOWN");
     }
 }
 
-export function reset() {};
 
-export function setDimensions(width, height) {
+ function setDimensions(width, height) {
     gameWidth = width;
     gameHeight = height;
 };
 
-export function registerListener() {
-    document.addEventListener("keydown", (event) => {
-        changeDirection(event.keyCode);
-    });
-}
 
-export function isPaused() {
+
+ function isPaused() {
     return paused;
 }
 
-export function togglePause() {
+ function togglePause() {
     paused = !paused;
 }
+
+export { 
+    snake, 
+    gameRunning, 
+    initGame, 
+    getState, 
+    step, 
+    changeDirection, 
+    isGameRunning, 
+    endGame,
+    isPaused,
+    togglePause,
+    setDimensions,
+   
+
+    
+};
