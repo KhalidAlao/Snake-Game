@@ -144,8 +144,10 @@ canvas {
   color: #fff;
   font-size: 1.5rem;
   font-weight: bold;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-  transition: transform 0.1s, background 0.2s;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  transition:
+    transform 0.1s,
+    background 0.2s;
 }
 
 .dpad button:active {
@@ -157,7 +159,6 @@ canvas {
   display: flex;
   gap: 8px;
 }
-
 
 .modal {
   position: fixed;

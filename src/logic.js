@@ -1,10 +1,4 @@
-import {
-    GRID_SIZE,
-    KEY_LEFT,
-    KEY_UP,
-    KEY_RIGHT,
-    KEY_DOWN,
-  } from './constants.js';
+import { GRID_SIZE, KEY_LEFT, KEY_UP, KEY_RIGHT, KEY_DOWN } from './constants.js';
 
 let snake = [];
 let dx = GRID_SIZE;
@@ -77,15 +71,15 @@ export function step() {
   }
 
   if (
-    head.x < 0
-    || head.x >= width
-    || head.y < 0
-    || head.y >= height
-    || snake.slice(1).some((p) => p.x === head.x && p.y === head.y)
+    head.x < 0 ||
+    head.x >= width ||
+    head.y < 0 ||
+    head.y >= height ||
+    snake.slice(1).some((p) => p.x === head.x && p.y === head.y)
   ) {
     gameRunning = false;
   }
-  
+
   return ateFood;
 }
 
