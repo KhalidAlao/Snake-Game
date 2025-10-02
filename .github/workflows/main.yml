@@ -19,6 +19,10 @@ jobs:
 
       - run: npm ci
 
+      # Fix formatting 
+      - name: Fix formatting
+        run: npx prettier . -w
+
       # Check formatting, fail if not matching prettier rules
       - name: Check formatting
         run: npm run format:check
