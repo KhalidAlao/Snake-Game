@@ -12,6 +12,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          # This ensures we can push fixes back if needed
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/setup-node@v3
         with:
@@ -19,15 +22,35 @@ jobs:
 
       - run: npm ci
 
-      # Fix formatting
+      # Auto-fix formatting issues
       - name: Fix formatting
-        run: npx prettier . -w
+        run: npx prettier . --write
 
-      # Check formatting, fail if not matching prettier rules
+      # Auto-fix linting issues
+      - name: Fix linting
+        run: npm run lint:fix
+
+      # Check if there are any changes after fixes
+      - name: Check for changes
+        id: changes
+        run: |
+          git add .
+          git diff --staged --quiet || echo "changes=true" >> $GITHUB_OUTPUT
+
+      # Commit and push fixes if there are any
+      - name: Commit fixes
+        if: steps.changes.outputs.changes == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git commit -m "ci: auto-fix formatting and linting issues"
+          git push
+
+      # Verify formatting is correct
       - name: Check formatting
         run: npm run format:check
 
-      # Run ESLint, fail if issues
+      # Verify linting is correct
       - name: Run ESLint
         run: npm run lint
 
