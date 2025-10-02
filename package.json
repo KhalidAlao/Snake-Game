@@ -20,12 +20,19 @@
     "format:write": "prettier --write src",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
-    "test": "jest"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "lint-staged": {
     "src/**/*.{js,jsx}": [
       "prettier --write",
       "eslint --fix"
     ]
+  }, 
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {},
+    "moduleNameMapper": {
+      "^(\\.{1,2}/.*)\\.js$": "$1"
+    }
   }
 }
