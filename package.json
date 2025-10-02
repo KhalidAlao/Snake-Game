@@ -13,18 +13,17 @@
   },
   "type": "module",
   "scripts": {
-  "prepare": "husky install",
-  "format": "prettier --write src",
-  "format:check": "prettier --check src",
-  "lint": "eslint src",
-  "lint:fix": "eslint src --fix",
-  "test": "jest"
-},
-"lint-staged": {
-  "src/**/*.{js,jsx}": [
-    "prettier --write",
-    "eslint --fix"
-  ]
-}
-
+    "prepare": "husky install",
+    "format": "prettier --write src",
+    "format:check": "prettier --check src",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "test": "jest"
+  },
+  "lint-staged": {
+    "src/**/*.{js,jsx}": [
+      "prettier --write",
+      "eslint --fix"
+    ]
+  }
 }

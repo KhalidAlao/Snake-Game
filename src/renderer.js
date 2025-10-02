@@ -26,9 +26,10 @@ export function clearCanvas(ctx, canvas) {
 
 export function drawSnake(ctx, snake) {
   snake.forEach((part, i) => {
-    ctx.fillStyle = i === 0
-      ? getComputedStyle(document.documentElement).getPropertyValue('--snake-head')
-      : getComputedStyle(document.documentElement).getPropertyValue('--snake');
+    ctx.fillStyle =
+      i === 0
+        ? getComputedStyle(document.documentElement).getPropertyValue('--snake-head')
+        : getComputedStyle(document.documentElement).getPropertyValue('--snake');
     ctx.fillRect(part.x, part.y, GRID_SIZE, GRID_SIZE);
     ctx.strokeStyle = 'rgba(255,255,255,0.2)';
     ctx.strokeRect(part.x, part.y, GRID_SIZE, GRID_SIZE);
