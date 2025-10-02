@@ -12,57 +12,30 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-        with:
-          # This ensures we can push fixes back if needed
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - uses: actions/setup-node@v3
         with:
           node-version: 20
-
       - run: npm ci
 
-      # Auto-fix formatting issues
-      - name: Fix formatting
-        run: npx prettier . --write
-
-      # Auto-fix linting issues
-      - name: Fix linting
-        run: npm run lint:fix
-
-      # Check if there are any changes after fixes
-      - name: Check for changes
-        id: changes
-        run: |
-          git add .
-          git diff --staged --quiet || echo "changes=true" >> $GITHUB_OUTPUT
-
-      # Commit and push fixes if there are any
-      - name: Commit fixes
-        if: steps.changes.outputs.changes == 'true'
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git commit -m "ci: auto-fix formatting and linting issues"
-          git push
-
-      # Verify formatting is correct
+      # Show what needs to be fixed
       - name: Check formatting
         run: npm run format:check
 
-      # Verify linting is correct
       - name: Run ESLint
         run: npm run lint
 
-      # Run tests
       - name: Run tests
         run: npm test
 
-      # If something fails, add a PR comment
       - name: Comment on PR if CI fails
         if: failure()
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           message: |
-            ❌ CI failed.
-            Please run `npm run lint:fix && npm run format` locally before pushing again.
+            ❌ CI failed due to linting/formatting issues.
+            Run these commands locally to fix:
+            ```bash
+            npm run lint:fix
+            npm run format:write
+            ```
+            Then commit and push the changes.
