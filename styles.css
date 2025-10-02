@@ -113,6 +113,27 @@ button:hover {
   background: var(--button-hover);
 }
 
+.restart-btn {
+  margin-top: 12px;
+  margin-bottom: 12px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #e63946;
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+  transition: transform 0.1s, background 0.2s;
+}
+
+.restart-btn:active {
+  transform: scale(0.95);
+  background: #d62828;
+}
+
+
 .canvas-wrapper {
   position: relative;
   width: 100%;
