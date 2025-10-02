@@ -26,8 +26,7 @@ export function clearCanvas(ctx, canvas) {
 
 export function drawSnake(ctx, snake) {
   snake.forEach((part, i) => {
-    ctx.fillStyle =
-      i === 0
+    ctx.fillStyle = i === 0
         ? getComputedStyle(document.documentElement).getPropertyValue('--snake-head')
         : getComputedStyle(document.documentElement).getPropertyValue('--snake');
     ctx.fillRect(part.x, part.y, GRID_SIZE, GRID_SIZE);
