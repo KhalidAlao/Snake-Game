@@ -127,21 +127,37 @@ canvas {
   height: auto;
 }
 
-.mobile-controls {
+.dpad {
   display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-top: 1rem;
-  gap: 0.5rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
 }
 
-.mobile-btn {
-  width: 50px;
-  height: 50px;
+.dpad button {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: none;
+  background: #444;
+  color: #fff;
   font-size: 1.5rem;
   font-weight: bold;
-  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  transition: transform 0.1s, background 0.2s;
 }
+
+.dpad button:active {
+  transform: scale(0.9);
+  background: #666;
+}
+
+.middle-row {
+  display: flex;
+  gap: 8px;
+}
+
 
 .modal {
   position: fixed;
