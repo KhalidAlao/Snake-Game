@@ -19,7 +19,7 @@ jobs:
 
       - run: npm ci
 
-      # Fix formatting 
+      # Fix formatting
       - name: Fix formatting
         run: npx prettier . -w
 

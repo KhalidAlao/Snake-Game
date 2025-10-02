@@ -56,9 +56,8 @@ restartBtn.addEventListener('click', () => {
 });
 
 document.getElementById('restart-btn').addEventListener('click', () => {
-    startGame();
-  });
-  
+  startGame();
+});
 
 function mainLoop(timestamp) {
   if (!lastTime) lastTime = timestamp;

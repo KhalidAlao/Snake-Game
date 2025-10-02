@@ -1,67 +1,62 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" data-theme="dark">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Snake Game</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
     <div class="header">
-        <h1>🐍 Snake Game</h1>
-        <div class="theme-toggle" id="theme-toggle">
-            <span id="theme-label">Dark Mode</span>
-            <div class="toggle-switch" id="toggle-switch"></div>
-        </div>
+      <h1>🐍 Snake Game</h1>
+      <div class="theme-toggle" id="theme-toggle">
+        <span id="theme-label">Dark Mode</span>
+        <div class="toggle-switch" id="toggle-switch"></div>
+      </div>
     </div>
 
     <div class="game-container">
-        <div class="score-panel">
-            <div id="score">Score: 0</div>
-            <div id="high-score">High Score: 0</div>
-        </div>
+      <div class="score-panel">
+        <div id="score">Score: 0</div>
+        <div id="high-score">High Score: 0</div>
+      </div>
 
-        <button id="restart-btn" class="restart-btn">⟳ Restart</button>
-        <div class="canvas-wrapper">
-            <canvas id="gameCanvas"></canvas>
-        </div>
-    
-        
- <!-- Leaderboard Modal -->
-<div class="modal hidden" id="modal">
-    <div class="modal-content">
-        <h1>Leaderboard</h1>
+      <button id="restart-btn" class="restart-btn">⟳ Restart</button>
+      <div class="canvas-wrapper">
+        <canvas id="gameCanvas"></canvas>
+      </div>
 
-        <!-- Top score input -->
-        <div id="topScoreInput" class="hidden">
+      <!-- Leaderboard Modal -->
+      <div class="modal hidden" id="modal">
+        <div class="modal-content">
+          <h1>Leaderboard</h1>
+
+          <!-- Top score input -->
+          <div id="topScoreInput" class="hidden">
             <p>Congratulations! Enter your name:</p>
             <input type="text" id="playerName" placeholder="Your name" />
             <button id="submitName">Submit</button>
+          </div>
+
+          <!-- Leaderboard list -->
+          <ul id="leaderboardList"></ul>
+
+          <!-- Modal actions -->
+          <button id="restart-game">Play Again</button>
+          <button id="closeLeaderboard">Close</button>
         </div>
-
-        <!-- Leaderboard list -->
-        <ul id="leaderboardList"></ul>
-
-        <!-- Modal actions -->
-        <button id="restart-game">Play Again</button>
-        <button id="closeLeaderboard">Close</button>
-    </div>
-</div>
-
-  
-
+      </div>
     </div>
 
     <div class="dpad">
-        <button class="up" id="up-btn">▲</button>
-        <div class="middle-row">
-          <button class="left" id="left-btn">◀</button>
-          <button class="down" id="down-btn">▼</button>
-          <button class="right" id="right-btn">▶</button>
-        </div>
+      <button class="up" id="up-btn">▲</button>
+      <div class="middle-row">
+        <button class="left" id="left-btn">◀</button>
+        <button class="down" id="down-btn">▼</button>
+        <button class="right" id="right-btn">▶</button>
       </div>
-      
-   
+    </div>
+
     <script type="module" src="./src/game.js"></script>
-</body>
+  </body>
 </html>
