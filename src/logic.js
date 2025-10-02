@@ -66,9 +66,11 @@ export function changeDirection(key) {
     if ((key === KEY_DOWN || key === 'ArrowDown') && !goingUp) { dx=0; dy=GRID_SIZE; }
 }
 
-function createFood() {
+export function createFood() {
     do {
         food.x = Math.floor(Math.random() * (width/GRID_SIZE)) * GRID_SIZE;
         food.y = Math.floor(Math.random() * (height/GRID_SIZE)) * GRID_SIZE;
     } while(snake.some(p => p.x === food.x && p.y === food.y));
+
+    return food;
 }
