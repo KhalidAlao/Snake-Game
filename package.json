@@ -16,8 +16,8 @@
   "type": "module",
   "scripts": {
     "prepare": "husky install",
-    "format": "prettier --write src",
     "format:check": "prettier --check src",
+    "format:write": "prettier --write src",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
     "test": "jest"
