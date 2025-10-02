@@ -34,7 +34,6 @@ A sleek, responsive, and theme-toggleable Snake Game built with HTML, CSS, and J
 
 └── README.md # Project overview and instructions
 
-
 ---
 
 ## 🎮 How to Play

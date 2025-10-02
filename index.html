@@ -23,25 +23,31 @@
         <div class="canvas-wrapper">
             <canvas id="gameCanvas"></canvas>
         
-            <!-- Game Over Overlay -->
-            <div class="game-over hidden" id="game-over">
-                <div>Game Over!</div>
-                <div class="final-score" id="final-score">Score: 0</div>
-                <button id="play-again-btn">Play Again</button>
-                <button id="show-leaderboard-btn">Leaderboard</button>
-            </div>
-        </div>
+    
         
-        <!-- Leaderboard Modal -->
-        <div class="modal hidden" id="modal">
-            <div class="modal-content">
-                <h1>Leaderboard</h1>
-                <ul id="leaderboardList"></ul>
-                <button id="closeLeaderboard">Close</button>
-            </div>
+ <!-- Leaderboard Modal -->
+<div class="modal hidden" id="modal">
+    <div class="modal-content">
+        <h1>Leaderboard</h1>
+
+        <!-- Top score input -->
+        <div id="topScoreInput" class="hidden">
+            <p>Congratulations! Enter your name:</p>
+            <input type="text" id="playerName" placeholder="Your name" />
+            <button id="submitName">Submit</button>
         </div>
 
-        <div class="mobile-controls">
+        <!-- Leaderboard list -->
+        <ul id="leaderboardList"></ul>
+
+        <!-- Modal actions -->
+        <button id="restart-game">Play Again</button>
+        <button id="closeLeaderboard">Close</button>
+    </div>
+</div>
+
+  
+<div class="mobile-controls">
             <button class="mobile-btn" id="up-btn">↑</button>
             <button class="mobile-btn" id="left-btn">←</button>
             <button class="mobile-btn" id="right-btn">→</button>

@@ -9,12 +9,33 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v3
+
       - uses: actions/setup-node@v3
         with:
           node-version: 20
 
       - run: npm ci
-      - run: npm run lint
-      - run: npm test
+
+      # Check formatting, fail if not matching prettier rules
+      - name: Check formatting
+        run: npm run format:check
+
+      # Run ESLint, fail if issues
+      - name: Run ESLint
+        run: npm run lint
+
+      # Run tests
+      - name: Run tests
+        run: npm test
+
+      # If something fails, add a PR comment
+      - name: Comment on PR if CI fails
+        if: failure()
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          message: |
+            ❌ CI failed.
+            Please run `npm run lint:fix && npm run format` locally before pushing again.

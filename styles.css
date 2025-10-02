@@ -10,7 +10,7 @@
   --button-hover: #555;
 }
 
-[data-theme="light"] {
+[data-theme='light'] {
   --canvas-bg: #eee;
   --canvas-border: #ccc;
   --snake-head: #090;
@@ -71,7 +71,7 @@ body {
   transition: left 0.3s;
 }
 
-[data-theme="light"] .toggle-switch::after {
+[data-theme='light'] .toggle-switch::after {
   left: 21px;
 }
 
@@ -92,7 +92,8 @@ body {
   margin-bottom: 1rem;
 }
 
-#score, #high-score {
+#score,
+#high-score {
   font-size: 1.2rem;
   font-weight: bold;
 }
@@ -144,9 +145,11 @@ canvas {
 
 .modal {
   position: fixed;
-  top:0; left:0;
-  width:100%; height:100%;
-  background: rgba(0,0,0,0.7);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -184,13 +187,14 @@ ul li {
 
 .game-over {
   position: absolute;
-  top: 50%; left: 50%;
+  top: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
   background: var(--modal-bg);
   padding: 30px;
   border-radius: 10px;
   text-align: center;
-  box-shadow: 0 0 15px rgba(0,0,0,0.5);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
   z-index: 10;
   animation: fadeIn 0.3s ease forwards;
 }
@@ -200,5 +204,10 @@ ul li {
 }
 
 @keyframes fadeIn {
-  from {opacity:0;} to {opacity:1;}
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
