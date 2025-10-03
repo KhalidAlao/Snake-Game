@@ -10,7 +10,7 @@ import {
   setDimensions,
 } from './logic.js';
 import { clearCanvas, drawSnake, drawFood } from './renderer.js';
-import { qualifiesForLeaderboard } from './leaderboard.js';
+import { entries, qualifiesForLeaderboard} from './leaderboard.js';
 import { showLeaderboard, initLeaderboardUI, promptTopScore } from './leaderboardUI.js';
 
 const canvas = document.getElementById('gameCanvas');
@@ -22,6 +22,10 @@ let accumulator = 0;
 let moveInterval = 200;
 let lastTime;
 
+const highScore = entries.length > 0 ? entries[0].score : 0;
+
+document.getElementById('high-score').textContent = `High Score: ${highScore}`;
+
 function resize() {
   canvas.width = Math.floor((window.innerWidth * 0.8) / 20) * 20;
   canvas.height = Math.floor((window.innerHeight * 0.6) / 20) * 20;
@@ -32,6 +36,8 @@ window.addEventListener('resize', resize);
 function updateScore(s) {
   document.getElementById('score').textContent = `Score: ${s}`;
 }
+
+
 
 function startGame() {
   initGame();

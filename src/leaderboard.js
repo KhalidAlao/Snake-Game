@@ -34,4 +34,5 @@ export {
   clearLeaderboard,
   qualifiesForLeaderboard,
   setLeaderboardChangeCallback,
+  entries
 };
