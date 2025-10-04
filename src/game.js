@@ -10,13 +10,13 @@ import {
   setDimensions,
 } from './logic.js';
 import { clearCanvas, drawSnake, drawFood } from './renderer.js';
-import { getEntries, qualifiesForLeaderboard, setLeaderboardChangeCallback, addOrUpdateEntry} from './leaderboard.js';
+import { getEntries, qualifiesForLeaderboard, setLeaderboardChangeCallback} from './leaderboard.js';
 import { showLeaderboard, initLeaderboardUI, promptTopScore } from './leaderboardUI.js';
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const restartBtn = document.getElementById('restart-game');
-
+const entries = getEntries();
 
 let score = 0;
 let accumulator = 0;
@@ -29,7 +29,7 @@ let isNewHighScore = false;
 
 function updateHighScoreDisplay() {
     
-    const entries = getEntries();
+   
     const newHighScore = entries.length > 0 ? entries[0].score : 0;
     
     if (newHighScore !== currentHighScore) {
