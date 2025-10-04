@@ -49,7 +49,7 @@ function updateHighScoreDisplay() {
     }
     return false;
   }
-  setLeaderboardChangeCallback((entries) => {
+  setLeaderboardChangeCallback((leaderboardEntries) => {
     updateHighScoreDisplay();
   });
 
