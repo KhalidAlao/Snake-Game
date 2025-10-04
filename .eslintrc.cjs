@@ -14,6 +14,7 @@ module.exports = {
       browser: true,
       node: true,
       es2023: true,
+      browser: true
     },
     rules: {
       'import/extensions': [

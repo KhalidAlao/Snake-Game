@@ -2,6 +2,7 @@
   "devDependencies": {
     "@babel/eslint-parser": "^7.27.1",
     "@eslint/js": "^9.36.0",
+    "@jest/globals": "^29.7.0",
     "eslint": "^8.57.1",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^10.1.8",
@@ -27,7 +28,7 @@
       "prettier --write",
       "eslint --fix"
     ]
-  }, 
+  },
   "jest": {
     "testEnvironment": "node",
     "transform": {},
