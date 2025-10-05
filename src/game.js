@@ -10,7 +10,11 @@ import {
   setDimensions,
 } from './logic.js';
 import { clearCanvas, drawSnake, drawFood } from './renderer.js';
-import { getEntries, qualifiesForLeaderboard, setLeaderboardChangeCallback} from './leaderboard.js';
+import {
+  getEntries,
+  qualifiesForLeaderboard,
+  setLeaderboardChangeCallback,
+} from './leaderboard.js';
 import { showLeaderboard, initLeaderboardUI, promptTopScore } from './leaderboardUI.js';
 
 const canvas = document.getElementById('gameCanvas');
@@ -26,34 +30,27 @@ let lastTime;
 let currentHighScore = getEntries().length > 0 ? getEntries()[0].score : 0;
 let isNewHighScore = false;
 
-
 function updateHighScoreDisplay() {
-    
-   
-    const newHighScore = entries.length > 0 ? entries[0].score : 0;
-    
-    if (newHighScore !== currentHighScore) {
-      currentHighScore = newHighScore;
-      document.getElementById('high-score').textContent = `High Score: ${currentHighScore}`;
-    }
-  }
-  
-  
-  function checkAndUpdateHighScore(currentScore) {
-    
-    if (currentScore > currentHighScore) {
-      isNewHighScore = true;
-      currentHighScore = currentScore;
-      document.getElementById('high-score').textContent = `High Score: ${currentHighScore} `;
-      return true;
-    }
-    return false;
-  }
-  setLeaderboardChangeCallback(() => {
-    updateHighScoreDisplay();
-  });
+  const newHighScore = entries.length > 0 ? entries[0].score : 0;
 
+  if (newHighScore !== currentHighScore) {
+    currentHighScore = newHighScore;
+    document.getElementById('high-score').textContent = `High Score: ${currentHighScore}`;
+  }
+}
 
+function checkAndUpdateHighScore(currentScore) {
+  if (currentScore > currentHighScore) {
+    isNewHighScore = true;
+    currentHighScore = currentScore;
+    document.getElementById('high-score').textContent = `High Score: ${currentHighScore} `;
+    return true;
+  }
+  return false;
+}
+setLeaderboardChangeCallback(() => {
+  updateHighScoreDisplay();
+});
 
 function resize() {
   canvas.width = Math.floor((window.innerWidth * 0.8) / 20) * 20;
@@ -63,10 +60,9 @@ function resize() {
 window.addEventListener('resize', resize);
 
 function updateScore(currentScore) {
-    document.getElementById('score').textContent = `Score: ${currentScore}`;
-    checkAndUpdateHighScore(currentScore);
+  document.getElementById('score').textContent = `Score: ${currentScore}`;
+  checkAndUpdateHighScore(currentScore);
 }
-
 
 function startGame() {
   initGame();
@@ -79,17 +75,16 @@ function startGame() {
 }
 
 function handleGameOver() {
-    
-    if (isNewHighScore) {
-      promptTopScore(score);
-    } else if (qualifiesForLeaderboard(score)) {
-      promptTopScore(score);
-    } else {
-      showLeaderboard();
-    }
-    
-    isNewHighScore = false;
+  if (isNewHighScore) {
+    promptTopScore(score);
+  } else if (qualifiesForLeaderboard(score)) {
+    promptTopScore(score);
+  } else {
+    showLeaderboard();
   }
+
+  isNewHighScore = false;
+}
 
 // Play Again
 restartBtn.addEventListener('click', () => {
