@@ -1,9 +1,8 @@
-package com.controller;
+package com.snakegame.backend.controller;
 
-import com.model.LeaderboardEntry;
-import com.service.LeaderboardService;
+import com.snakegame.backend.model.LeaderboardEntry;
+import com.snakegame.backend.service.LeaderboardService;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -16,13 +15,11 @@ public class LeaderboardController {
         this.leaderboardService = leaderboardService;
     }
 
-    // GET top leaderboard
     @GetMapping
     public List<LeaderboardEntry> getLeaderboard() {
         return leaderboardService.getTopEntries();
     }
 
-    // POST new entry
     @PostMapping
     public void addEntry(@RequestBody LeaderboardEntry entry) {
         leaderboardService.addEntry(entry.getName(), entry.getScore());

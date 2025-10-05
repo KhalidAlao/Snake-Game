@@ -1,11 +1,12 @@
-package com.service;
+package com.snakegame.backend.service;
 
-import com.model.LeaderboardEntry;
-import com.repository.LeaderboardRepository;
-
-import java.util.Comparator;
+import com.snakegame.backend.model.LeaderboardEntry;
+import com.snakegame.backend.repository.LeaderboardRepository;
+import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Comparator;
 
+@Service
 public class LeaderboardService {
 
     private final LeaderboardRepository repository;
@@ -17,12 +18,10 @@ public class LeaderboardService {
     public void addEntry(String name, int score) {
         LeaderboardEntry newEntry = new LeaderboardEntry(name, score);
         repository.save(newEntry);
-    
-        // Fetch all entries and sort descending
+
         List<LeaderboardEntry> entries = repository.findAll();
         entries.sort(Comparator.comparingInt(LeaderboardEntry::getScore).reversed());
-    
-        // Keep only top 5
+
         if (entries.size() > 5) {
             entries.subList(5, entries.size()).clear();
         }
@@ -36,9 +35,8 @@ public class LeaderboardService {
         }
         return entries;
     }
-    
+
     public void clearLeaderboard() {
         repository.clear();
     }
-    
 }
