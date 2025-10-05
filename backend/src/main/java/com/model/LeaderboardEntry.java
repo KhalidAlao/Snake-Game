@@ -5,7 +5,7 @@ import java.util.Objects;
 
 /**
  * Simple POJO representing one leaderboard entry.
- * Kept intentionally plain (no JPA annotations) for in-memory repo.
+ * Kept intentionally plain (no JPA annotations) for in-memory repository.
  */
 public class LeaderboardEntry {
   private Long id; // optional placeholder for future DB migration
@@ -16,46 +16,24 @@ public class LeaderboardEntry {
   // No-arg constructor (useful for frameworks & tests)
   public LeaderboardEntry() { }
 
-  // Public convenience constructor used by service/repository
+  // Convenience constructor used by service/repository
   public LeaderboardEntry(String name, int score) {
     this.name = name;
     this.score = score;
     this.createdAt = LocalDateTime.now();
   }
 
-  // Getters (note: getScore returns primitive int)
-  public Long getId() {
-    return id;
-  }
+  // Getters
+  public Long getId() { return id; }
+  public String getName() { return name; }
+  public int getScore() { return score; }
+  public LocalDateTime getCreatedAt() { return createdAt; }
 
-  public String getName() {
-    return name;
-  }
-
-  public int getScore() {
-    return score;
-  }
-
-  public LocalDateTime getCreatedAt() {
-    return createdAt;
-  }
-
-  // Setters (optional; useful for tests or future JPA)
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public void setScore(int score) {
-    this.score = score;
-  }
-
-  public void setCreatedAt(LocalDateTime createdAt) {
-    this.createdAt = createdAt;
-  }
+  // Setters
+  public void setId(Long id) { this.id = id; }
+  public void setName(String name) { this.name = name; }
+  public void setScore(int score) { this.score = score; }
+  public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
   @Override
   public boolean equals(Object o) {
