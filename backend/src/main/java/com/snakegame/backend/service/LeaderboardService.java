@@ -17,32 +17,29 @@ public class LeaderboardService {
     }
 
     public void addEntry(String name, int score) {
-        LeaderboardEntry newEntry = new LeaderboardEntry(name, score);
-        repository.save(newEntry);
+        repository.save(new LeaderboardEntry(name, score));
 
-        // Get all entries and sort them
-        List<LeaderboardEntry> entries = repository.findAll();
-        entries.sort(Comparator.comparingInt(LeaderboardEntry::getScore).reversed());
+        // Keep only top 5 scores
+        List<LeaderboardEntry> entries = repository.findAll()
+                .stream()
+                .sorted(Comparator.comparingInt(LeaderboardEntry::getScore).reversed())
+                .toList();
 
-        // Remove excess entries beyond top 5 from the repository
         if (entries.size() > 5) {
-            // Clear the entire repository
-            repository.clear();
-            
-            // Save only the top 5 entries back
-            for (int i = 0; i < 5; i++) {
-                repository.save(entries.get(i));
-            }
+            List<LeaderboardEntry> toRemove = entries.subList(5, entries.size());
+            repository.deleteAll(toRemove);
         }
     }
 
     public List<LeaderboardEntry> getTopEntries() {
-        List<LeaderboardEntry> entries = repository.findAll();
-        entries.sort(Comparator.comparingInt(LeaderboardEntry::getScore).reversed());
-        return entries.stream().limit(5).toList();
+        return repository.findAll()
+                .stream()
+                .sorted(Comparator.comparingInt(LeaderboardEntry::getScore).reversed())
+                .limit(5)
+                .toList();
     }
 
     public void clearLeaderboard() {
-        repository.clear();
+        repository.deleteAll();
     }
 }
