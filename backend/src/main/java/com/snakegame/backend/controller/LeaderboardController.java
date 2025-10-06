@@ -2,6 +2,8 @@ package com.snakegame.backend.controller;
 
 import com.snakegame.backend.model.LeaderboardEntry;
 import com.snakegame.backend.service.LeaderboardService;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -20,8 +22,16 @@ public class LeaderboardController {
         return leaderboardService.getTopEntries();
     }
 
-    @PostMapping
-    public void addEntry(@RequestBody LeaderboardEntry entry) {
-        leaderboardService.addEntry(entry.getName(), entry.getScore());
-    }
+   @PostMapping
+public ResponseEntity<String> addEntry(@RequestBody LeaderboardEntry entry) {
+    leaderboardService.addEntry(entry.getName(), entry.getScore());
+    return ResponseEntity.ok("Entry added successfully");
+}
+
+@DeleteMapping
+public ResponseEntity<String> clearLeaderboard() {
+    leaderboardService.clearLeaderboard();
+    return ResponseEntity.ok("Leaderboard cleared");
+}
+
 }
