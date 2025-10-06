@@ -1,3 +1,4 @@
+/* eslint-disable no-alert */
 import { getEntries, addOrUpdateEntry, qualifiesForLeaderboard } from './leaderboard.js';
 
 const modal = document.getElementById('modal');
@@ -19,11 +20,15 @@ export function hideLeaderboard() {
 }
 
 // Render the leaderboard list
-export function renderLeaderboard() {
-  const entries = getEntries();
-  list.innerHTML = entries.length
-    ? entries.map((e, i) => `<li>${i + 1}. ${e.name}: ${e.score}</li>`).join('')
-    : '<li>No scores yet!</li>';
+export async function renderLeaderboard() {
+  try {
+    const entriesArr = await getEntries(); // <-- important: await
+    list.innerHTML = entriesArr.length
+      ? entriesArr.map((e, i) => `<li>${i + 1}. ${e.name}: ${e.score}</li>`).join('')
+      : '<li>No scores yet!</li>';
+  } catch (err) {
+    list.innerHTML = '<li>Error loading leaderboard</li>';
+  }
 }
 
 // Initialize modal interactions
@@ -37,14 +42,18 @@ export function initLeaderboardUI(onRestart) {
 
   closeBtn.addEventListener('click', hideLeaderboard);
 
-  submitNameBtn.addEventListener('click', () => {
+  submitNameBtn.addEventListener('click', async () => {
     const name = playerNameInput.value.trim();
     if (name && pendingScore != null) {
-      addOrUpdateEntry(name, pendingScore);
-      pendingScore = null;
-      playerNameInput.value = '';
-      topScoreInput.classList.add('hidden');
-      renderLeaderboard();
+      try {
+        await addOrUpdateEntry(name, pendingScore); // Make sure to await
+        pendingScore = null;
+        playerNameInput.value = '';
+        topScoreInput.classList.add('hidden');
+        await renderLeaderboard(); // Also make renderLeaderboard async
+      } catch (error) {
+        alert('Failed to submit score. Please try again.');
+      }
     }
   });
 

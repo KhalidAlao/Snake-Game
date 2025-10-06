@@ -12,11 +12,18 @@ public class CorsConfig {
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
             @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/api/**")
-                        .allowedOrigins("http://127.0.0.1:5500") // frontend port
-                        .allowedMethods("GET", "POST", "DELETE");
-            }
+public void addCorsMappings(CorsRegistry registry) {
+    registry.addMapping("/api/**")
+            .allowedOrigins(
+                "http://127.0.0.1:5500",   // Live Server
+                "http://localhost:5500",   // alternative host
+                "http://localhost:5173",   // Vite (if used)
+                "http://127.0.0.1:5173"
+            )
+            .allowedMethods("GET", "POST", "DELETE")
+            .allowedHeaders("*");
+}
+
         };
     }
 }

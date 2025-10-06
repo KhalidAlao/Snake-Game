@@ -14,20 +14,20 @@ fetchLeaderboard()
 
 async function addOrUpdateEntry(name, score) {
   try {
-    // Submit score to backend API
     await submitScore(name, score);
 
-    // Fetch updated leaderboard from backend
-    const updatedLeaderboard = await fetchLeaderboard();
+    // Wait a bit to ensure backend processed the request
+    await new Promise((resolve) => {
+      setTimeout(resolve, 100);
+    });
 
-    // Update local state with data from backend
+    const updatedLeaderboard = await fetchLeaderboard();
     entries = updatedLeaderboard;
 
-    // Notify subscribers about the change
     if (onChange) onChange(entries);
   } catch (error) {
     console.error('Error in addOrUpdateEntry:', error);
-    throw error; // Re-throw to let caller handle the error
+    throw error;
   }
 }
 

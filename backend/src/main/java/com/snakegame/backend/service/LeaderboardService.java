@@ -19,21 +19,26 @@ public class LeaderboardService {
         LeaderboardEntry newEntry = new LeaderboardEntry(name, score);
         repository.save(newEntry);
 
+        // Get all entries and sort them
         List<LeaderboardEntry> entries = repository.findAll();
         entries.sort(Comparator.comparingInt(LeaderboardEntry::getScore).reversed());
 
+        // Remove excess entries beyond top 5 from the repository
         if (entries.size() > 5) {
-            entries.subList(5, entries.size()).clear();
+            // Clear the entire repository
+            repository.clear();
+            
+            // Save only the top 5 entries back
+            for (int i = 0; i < 5; i++) {
+                repository.save(entries.get(i));
+            }
         }
     }
 
     public List<LeaderboardEntry> getTopEntries() {
         List<LeaderboardEntry> entries = repository.findAll();
         entries.sort(Comparator.comparingInt(LeaderboardEntry::getScore).reversed());
-        if (entries.size() > 5) {
-            entries = entries.subList(0, 5);
-        }
-        return entries;
+        return entries.stream().limit(5).toList();
     }
 
     public void clearLeaderboard() {

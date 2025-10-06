@@ -12,5 +12,10 @@ export async function submitScore(name, score) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name, score }),
   });
-  if (!response.ok) throw new Error('Failed to submit score');
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Failed to submit score: ${response.status} - ${errorText}`);
+  }
+  // return server's response if you want to inspect it
+  return response.text();
 }
