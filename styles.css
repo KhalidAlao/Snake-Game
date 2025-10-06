@@ -199,6 +199,13 @@ canvas {
   display: none;
 }
 
+#leaderboardList .timestamp {
+  color: var(--muted-text, #888);
+  font-size: 0.85em;
+  margin-left: 6px;
+}
+
+
 .modal-content {
   background: var(--canvas-bg);
   color: var(--text-color);
