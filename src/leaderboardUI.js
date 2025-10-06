@@ -12,6 +12,14 @@ const closeBtn = document.getElementById('closeLeaderboard');
 let onRestartCallback = null;
 let pendingScore = null; // Holds score waiting for name input
 
+function formatTimestamp(ts) {
+  if (!ts && ts !== 0) return '';
+  // If backend returned an ISO string, Date handles it too
+  const date = new Date(ts);
+  // Use locale-specific date/time; adjust options if you want different format
+  return date.toLocaleString();
+}
+
 // Hide leaderboard modal
 export function hideLeaderboard() {
   modal.classList.add('hidden');
@@ -22,9 +30,16 @@ export function hideLeaderboard() {
 // Render the leaderboard list
 export async function renderLeaderboard() {
   try {
-    const entriesArr = await getEntries(); // <-- important: await
+    const entriesArr = await getEntries();
     list.innerHTML = entriesArr.length
-      ? entriesArr.map((e, i) => `<li>${i + 1}. ${e.name}: ${e.score}</li>`).join('')
+      ? entriesArr
+          .map((e, i) => {
+            const tsHtml = e.timestamp
+              ? ` <small class="timestamp">(${formatTimestamp(e.timestamp)})</small>`
+              : '';
+            return `<li>${i + 1}. ${e.name}: ${e.score}${tsHtml}</li>`;
+          })
+          .join('')
       : '<li>No scores yet!</li>';
   } catch (err) {
     list.innerHTML = '<li>Error loading leaderboard</li>';
