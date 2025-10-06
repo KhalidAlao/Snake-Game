@@ -33,5 +33,4 @@ public ResponseEntity<String> clearLeaderboard() {
     leaderboardService.clearLeaderboard();
     return ResponseEntity.ok("Leaderboard cleared");
 }
-
 }
