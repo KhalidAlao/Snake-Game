@@ -1,6 +1,13 @@
 package com.snakegame.backend.model;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "leaderboard_entries")
 public class LeaderboardEntry {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private int score;

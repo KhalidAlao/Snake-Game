@@ -3,8 +3,9 @@ package com.snakegame.backend.service;
 import com.snakegame.backend.model.LeaderboardEntry;
 import com.snakegame.backend.repository.LeaderboardRepository;
 import org.springframework.stereotype.Service;
-import java.util.List;
 import java.util.Comparator;
+import java.util.List;
+
 
 @Service
 public class LeaderboardService {
