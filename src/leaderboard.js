@@ -4,51 +4,40 @@ import { fetchLeaderboard, submitScore } from './api.js';
 let entries = [];
 let onChange = null;
 
-// Fetch initial leaderboard from API when module loads
-fetchLeaderboard()
-  .then((data) => {
-    entries = data;
-    if (onChange) onChange(entries);
-  })
-  .catch((error) => console.error('Failed to load leaderboard:', error));
+// Fetch latest leaderboard from backend
+export async function getEntries() {
+  try {
+    const data = await fetchLeaderboard();
+    entries = data.sort((a, b) => b.score - a.score); // sort descending
+    return [...entries];
+  } catch (err) {
+    console.error('Error fetching leaderboard:', err);
+    return [...entries]; // fallback to cached
+  }
+}
 
-async function addOrUpdateEntry(name, score) {
+// Add or update an entry
+export async function addOrUpdateEntry(name, score) {
   try {
     await submitScore(name, score);
-
-    // Wait a bit to ensure backend processed the request
     await new Promise((resolve) => {
       setTimeout(resolve, 100);
-    });
-
-    const updatedLeaderboard = await fetchLeaderboard();
-    entries = updatedLeaderboard;
-
+    }); // slight delay
+    const updatedEntries = await getEntries();
+    entries = updatedEntries;
     if (onChange) onChange(entries);
-  } catch (error) {
-    console.error('Error in addOrUpdateEntry:', error);
-    throw error;
+  } catch (err) {
+    console.error('Failed to submit score:', err);
+    throw err;
   }
 }
 
-async function getEntries() {
-  try {
-    // Always fetch fresh data from API to ensure we have latest state
-    entries = await fetchLeaderboard();
-    return [...entries];
-  } catch (error) {
-    console.error('Error fetching leaderboard:', error);
-    return [...entries]; // Return cached entries as fallback
-  }
+// Check if score qualifies for top 5
+export function qualifiesForLeaderboard(score) {
+  return entries.length < 5 || score > entries[entries.length - 1]?.score;
 }
 
-function qualifiesForLeaderboard(score) {
-  const current = entries; // Use current cached entries
-  return current.length < 5 || score > current[current.length - 1]?.score;
-}
-
-function setLeaderboardChangeCallback(cb) {
+// Callback for leaderboard updates
+export function setLeaderboardChangeCallback(cb) {
   onChange = cb;
 }
-
-export { addOrUpdateEntry, getEntries, qualifiesForLeaderboard, setLeaderboardChangeCallback };

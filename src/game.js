@@ -12,6 +12,7 @@ import {
 import { clearCanvas, drawSnake, drawFood } from './renderer.js';
 import {
   getEntries,
+  addOrUpdateEntry,
   qualifiesForLeaderboard,
   setLeaderboardChangeCallback,
 } from './leaderboard.js';
@@ -20,38 +21,15 @@ import { showLeaderboard, initLeaderboardUI, promptTopScore } from './leaderboar
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const restartBtn = document.getElementById('restart-game');
-const entries = getEntries();
 
 let score = 0;
 let accumulator = 0;
 let moveInterval = 200;
-let lastTime;
-
-let currentHighScore = getEntries().length > 0 ? getEntries()[0].score : 0;
+let lastTime = null;
+let currentHighScore = 0;
 let isNewHighScore = false;
 
-function updateHighScoreDisplay() {
-  const newHighScore = entries.length > 0 ? entries[0].score : 0;
-
-  if (newHighScore !== currentHighScore) {
-    currentHighScore = newHighScore;
-    document.getElementById('high-score').textContent = `High Score: ${currentHighScore}`;
-  }
-}
-
-function checkAndUpdateHighScore(currentScore) {
-  if (currentScore > currentHighScore) {
-    isNewHighScore = true;
-    currentHighScore = currentScore;
-    document.getElementById('high-score').textContent = `High Score: ${currentHighScore} `;
-    return true;
-  }
-  return false;
-}
-setLeaderboardChangeCallback(() => {
-  updateHighScoreDisplay();
-});
-
+// Initialize canvas size
 function resize() {
   canvas.width = Math.floor((window.innerWidth * 0.8) / 20) * 20;
   canvas.height = Math.floor((window.innerHeight * 0.6) / 20) * 20;
@@ -59,42 +37,57 @@ function resize() {
 }
 window.addEventListener('resize', resize);
 
+// Update score display and check high score
 function updateScore(currentScore) {
   document.getElementById('score').textContent = `Score: ${currentScore}`;
-  checkAndUpdateHighScore(currentScore);
+  if (currentScore > currentHighScore) {
+    isNewHighScore = true;
+    currentHighScore = currentScore;
+    document.getElementById('high-score').textContent = `High Score: ${currentHighScore}`;
+  }
 }
 
+// Initialize high score from backend
+async function initHighScore() {
+  const entries = await getEntries();
+  if (entries.length > 0) {
+    currentHighScore = entries[0].score;
+    document.getElementById('high-score').textContent = `High Score: ${currentHighScore}`;
+  }
+}
+
+// Handle game over and leaderboard submission
+async function handleGameOver() {
+  if (isNewHighScore || qualifiesForLeaderboard(score)) {
+    try {
+      const playerName = await promptTopScore(score); // wait for name input
+      if (playerName) {
+        await addOrUpdateEntry(playerName, score); // submit to backend
+        const updatedEntries = await getEntries(); // fetch updated leaderboard
+        if (updatedEntries.length > 0) {
+          currentHighScore = updatedEntries[0].score;
+          document.getElementById('high-score').textContent = `High Score: ${currentHighScore}`;
+        }
+      }
+      // eslint-disable-next-line no-empty
+    } catch (err) {}
+  } else {
+    showLeaderboard();
+  }
+  isNewHighScore = false;
+}
+
+// Start or restart game
 function startGame() {
   initGame();
   score = 0;
   accumulator = 0;
   moveInterval = 200;
   isNewHighScore = false;
-  updateHighScoreDisplay();
   updateScore(0);
 }
 
-function handleGameOver() {
-  if (isNewHighScore) {
-    promptTopScore(score);
-  } else if (qualifiesForLeaderboard(score)) {
-    promptTopScore(score);
-  } else {
-    showLeaderboard();
-  }
-
-  isNewHighScore = false;
-}
-
-// Play Again
-restartBtn.addEventListener('click', () => {
-  startGame();
-});
-
-document.getElementById('restart-btn').addEventListener('click', () => {
-  startGame();
-});
-
+// Main game loop
 function mainLoop(timestamp) {
   if (!lastTime) lastTime = timestamp;
   const delta = timestamp - lastTime;
@@ -120,11 +113,11 @@ function mainLoop(timestamp) {
   clearCanvas(ctx, canvas);
   drawSnake(ctx, getSnake());
   drawFood(ctx, getFood());
-  updateScore(score);
 
   requestAnimationFrame(mainLoop);
 }
 
+// Input handling
 window.addEventListener('keydown', (e) => {
   if (e.key === 'p' || e.key === 'P') togglePause();
   else changeDirection(e.keyCode || e.key);
@@ -135,8 +128,10 @@ document.getElementById('up-btn').addEventListener('click', () => changeDirectio
 document.getElementById('down-btn').addEventListener('click', () => changeDirection('ArrowDown'));
 document.getElementById('left-btn').addEventListener('click', () => changeDirection('ArrowLeft'));
 document.getElementById('right-btn').addEventListener('click', () => changeDirection('ArrowRight'));
+restartBtn.addEventListener('click', startGame);
+document.getElementById('restart-btn').addEventListener('click', startGame);
 
-// Dark/Light Mode
+// Dark/Light Mode toggle
 const themeToggle = document.getElementById('theme-toggle');
 const themeLabel = document.getElementById('theme-label');
 themeToggle.addEventListener('click', () => {
@@ -145,9 +140,17 @@ themeToggle.addEventListener('click', () => {
   themeLabel.textContent = html.dataset.theme === 'dark' ? 'Dark Mode' : 'Light Mode';
 });
 
-// Initialize
-initLeaderboardUI();
+// Update high score live when backend leaderboard changes
+setLeaderboardChangeCallback((updatedEntries) => {
+  if (updatedEntries.length > 0 && updatedEntries[0].score > currentHighScore) {
+    currentHighScore = updatedEntries[0].score;
+    document.getElementById('high-score').textContent = `High Score: ${currentHighScore}`;
+  }
+});
+
+// Initialize everything
+initLeaderboardUI(startGame);
 resize();
+initHighScore();
 startGame();
-updateHighScoreDisplay();
 requestAnimationFrame(mainLoop);

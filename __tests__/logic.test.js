@@ -15,4 +15,3 @@ test('food spawns within grid bounds', () => {
   expect(food.y).toBeGreaterThanOrEqual(0);
   expect(food.y % GRID_SIZE).toBe(0);
 });
-
