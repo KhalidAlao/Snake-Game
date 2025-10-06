@@ -1,38 +1,54 @@
-let entries = JSON.parse(localStorage.getItem('leaderboard')) || [];
+/* eslint-disable no-console */
+import { fetchLeaderboard, submitScore } from './api.js';
+
+let entries = [];
 let onChange = null;
 
-function addOrUpdateEntry(name, score) {
-  const now = Date.now();
-  const existingIndex = entries.findIndex((e) => e.name === name && e.score === score);
-  if (existingIndex !== -1) entries[existingIndex].timestamp = now;
-  else entries.push({ name, score, timestamp: now });
-  entries.sort((a, b) => b.score - a.score || a.timestamp - b.timestamp);
-  entries = entries.slice(0, 5);
-  localStorage.setItem('leaderboard', JSON.stringify(entries));
-  if (onChange) onChange(entries);
+// Fetch initial leaderboard from API when module loads
+fetchLeaderboard()
+  .then((data) => {
+    entries = data;
+    if (onChange) onChange(entries);
+  })
+  .catch((error) => console.error('Failed to load leaderboard:', error));
+
+async function addOrUpdateEntry(name, score) {
+  try {
+    // Submit score to backend API
+    await submitScore(name, score);
+
+    // Fetch updated leaderboard from backend
+    const updatedLeaderboard = await fetchLeaderboard();
+
+    // Update local state with data from backend
+    entries = updatedLeaderboard;
+
+    // Notify subscribers about the change
+    if (onChange) onChange(entries);
+  } catch (error) {
+    console.error('Error in addOrUpdateEntry:', error);
+    throw error; // Re-throw to let caller handle the error
+  }
 }
 
-function getEntries() {
-  return [...entries];
+async function getEntries() {
+  try {
+    // Always fetch fresh data from API to ensure we have latest state
+    entries = await fetchLeaderboard();
+    return [...entries];
+  } catch (error) {
+    console.error('Error fetching leaderboard:', error);
+    return [...entries]; // Return cached entries as fallback
+  }
 }
-function clearLeaderboard() {
-  entries = [];
-  localStorage.removeItem('leaderboard');
-  if (onChange) onChange(entries);
-}
+
 function qualifiesForLeaderboard(score) {
-  const current = getEntries();
-  return current.length < 5 || score > current[current.length - 1].score;
+  const current = entries; // Use current cached entries
+  return current.length < 5 || score > current[current.length - 1]?.score;
 }
+
 function setLeaderboardChangeCallback(cb) {
   onChange = cb;
 }
 
-export {
-  addOrUpdateEntry,
-  getEntries,
-  clearLeaderboard,
-  qualifiesForLeaderboard,
-  setLeaderboardChangeCallback,
-  
-};
+export { addOrUpdateEntry, getEntries, qualifiesForLeaderboard, setLeaderboardChangeCallback };
