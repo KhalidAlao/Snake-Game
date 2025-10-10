@@ -18,10 +18,7 @@ public class AuthController {
         this.userService = userService;
     }
 
-    public boolean existsByUsername(String username) {
-        return userRepository.findByUsername(username).isPresent();
-    }
-    
+    // REMOVED the incorrect existsByUsername method that was here
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Map<String, String> body) {

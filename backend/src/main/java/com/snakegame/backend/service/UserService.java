@@ -26,4 +26,9 @@ public class UserService {
                 .map(u -> passwordEncoder.matches(password, u.getPasswordHash()))
                 .orElse(false);
     }
+
+    // ADD THIS MISSING METHOD
+    public boolean existsByUsername(String username) {
+        return userRepository.findByUsername(username).isPresent();
+    }
 }
