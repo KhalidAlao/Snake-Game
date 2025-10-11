@@ -1,5 +1,5 @@
 import { createFood } from '../src/logic.js';
-import { GRID_SIZE } from '../src/constants.js';
+import { GRID_SIZE } from '../src/config.js';
 
 test('createFood returns food with x and y', () => {
   const food = createFood(); // returns the updated food object

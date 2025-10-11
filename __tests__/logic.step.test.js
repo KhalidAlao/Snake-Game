@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import { GRID_SIZE } from '../src/constants.js';
+import { GRID_SIZE } from '../src/config.js';
 
 describe('step() - moving behavior', () => {
   let logic;
