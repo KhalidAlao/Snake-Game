@@ -21,7 +21,7 @@ function handleKeyDown(e) {
   // Handle direction keys
   if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
     e.preventDefault();
-    
+
     switch (e.key) {
       case 'ArrowUp':
         setDirection(0, -1);
@@ -58,10 +58,10 @@ export function resetDirection() {
 export function initInput(onPause) {
   // Reset direction on init
   resetDirection();
-  
+
   // Set the pause callback
   pauseCallback = onPause;
-  
+
   // Remove any existing event listeners to avoid duplicates
   window.removeEventListener('keydown', handleKeyDown);
   window.addEventListener('keydown', handleKeyDown);
@@ -80,6 +80,8 @@ export function initInput(onPause) {
         break;
       case 'right-btn':
         setDirection(1, 0);
+        break;
+      default:
         break;
     }
   });

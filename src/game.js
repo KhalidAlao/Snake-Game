@@ -18,6 +18,8 @@ import {
 } from './leaderboard.js';
 import { showLeaderboard, initLeaderboardUI, promptTopScore } from './leaderboardUI.js';
 import { initInput, getInputDirection, resetDirection } from './input.js';
+import { initAuthUI, tryAutoLogin } from './authUI.js';
+import authService from './auth.js';
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -50,14 +52,10 @@ function updateScore(currentScore) {
 
 // Initialize high score from backend
 async function initHighScore() {
-  try {
-    const entries = await getEntries();
-    if (entries.length > 0) {
-      currentHighScore = entries[0].score;
-      document.getElementById('high-score').textContent = `High Score: ${currentHighScore}`;
-    }
-  } catch (error) {
-    console.error('Failed to load high score:', error);
+  const entries = await getEntries();
+  if (entries.length > 0) {
+    currentHighScore = entries[0].score;
+    document.getElementById('high-score').textContent = `High Score: ${currentHighScore}`;
   }
 }
 
@@ -75,7 +73,6 @@ async function handleGameOver() {
         }
       }
     } catch (err) {
-      console.error('Failed to submit score:', err);
       showLeaderboard();
     }
   } else {
@@ -93,7 +90,7 @@ function startGame() {
   moveInterval = 200;
   isNewHighScore = false;
   updateScore(0);
-  
+
   // Remove pause overlay if it exists
   const overlay = document.getElementById('pauseOverlay');
   if (overlay) overlay.remove();
@@ -126,14 +123,14 @@ function mainLoop(timestamp) {
     if (!isPaused()) {
       // Get current direction from input system and update game logic
       const direction = getInputDirection();
-      
+
       accumulator += delta;
       while (accumulator >= moveInterval) {
         accumulator -= moveInterval;
-        
+
         // Update direction before each step
         changeDirection(direction);
-        
+
         const ate = step();
         if (ate) {
           score += 5;
@@ -160,7 +157,7 @@ function mainLoop(timestamp) {
 function initInputHandling() {
   // Initialize input system with pause callback
   initInput(togglePause);
-  
+
   // Restart buttons
   restartBtn?.addEventListener('click', startGame);
   document.getElementById('restart-btn')?.addEventListener('click', startGame);
@@ -170,7 +167,7 @@ function initInputHandling() {
 function initTheme() {
   const themeToggle = document.getElementById('theme-toggle');
   const themeLabel = document.getElementById('theme-label');
-  
+
   if (themeToggle && themeLabel) {
     themeToggle.addEventListener('click', () => {
       const html = document.documentElement;
@@ -219,6 +216,8 @@ function init() {
   initInputHandling();
   initTheme();
   initHelpSystem();
+  initAuthUI(); 
+  tryAutoLogin();
   initLeaderboardUI(startGame);
   resize();
   initHighScore();

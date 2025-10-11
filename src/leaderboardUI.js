@@ -24,11 +24,6 @@ function setLoading(loading) {
   }
 }
 
-function showError(message) {
-  list.innerHTML = `<li class="error">${message}</li>`;
-  setTimeout(() => renderLeaderboard(), 3000);
-}
-
 function formatTimestamp(ts) {
   if (!ts) return '';
   const date = new Date(ts);
@@ -40,7 +35,7 @@ export async function renderLeaderboard() {
   try {
     setLoading(true);
     const entries = await getEntries();
-    
+
     list.innerHTML = entries.length
       ? entries
           .map((e, i) => {
@@ -52,11 +47,15 @@ export async function renderLeaderboard() {
           .join('')
       : '<li>No scores yet! Be the first!</li>';
   } catch (error) {
-    console.error('Error rendering leaderboard:', error);
     showError('Failed to load leaderboard. Please try again.');
   } finally {
     setLoading(false);
   }
+}
+
+function showError(message) {
+  list.innerHTML = `<li class="error">${message}</li>`;
+  setTimeout(() => renderLeaderboard(), 3000);
 }
 
 // Hide modal
@@ -90,7 +89,7 @@ export async function promptTopScore(score) {
     const handleSubmit = async () => {
       const name = playerNameInput.value.trim();
       if (!name || isLoading) return;
-      
+
       try {
         setLoading(true);
         await addOrUpdateEntry(name, pendingScore);
@@ -100,7 +99,6 @@ export async function promptTopScore(score) {
         await renderLeaderboard();
         resolve(name);
       } catch (err) {
-        console.error('Error submitting score:', err);
         showError('Failed to submit score. Please try again.');
       } finally {
         setLoading(false);
@@ -113,7 +111,7 @@ export async function promptTopScore(score) {
     playerNameInput.onkeyup = (e) => {
       if (e.key === 'Enter') handleSubmit();
     };
-    
+
     // Focus the input
     playerNameInput.focus();
   });

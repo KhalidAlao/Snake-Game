@@ -1,6 +1,5 @@
-import { GRID_SIZE } from './constants.js';
-
 let snake = [];
+export const GRID_SIZE = 20;
 let dx = GRID_SIZE;
 let dy = 0;
 const food = { x: 0, y: 0 };
@@ -91,7 +90,7 @@ export function changeDirection(direction) {
   // direction should be { x: -1|0|1, y: -1|0|1 }
   if (direction && typeof direction.x === 'number' && typeof direction.y === 'number') {
     // Prevent 180-degree turns (extra safety)
-    if ((dx === -direction.x * GRID_SIZE && dy === -direction.y * GRID_SIZE)) {
+    if (dx === -direction.x * GRID_SIZE && dy === -direction.y * GRID_SIZE) {
       return;
     }
     dx = direction.x * GRID_SIZE;

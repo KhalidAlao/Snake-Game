@@ -1,4 +1,4 @@
-import { GRID_SIZE } from './constants.js';
+import { GRID_SIZE } from './logic.js';
 
 export function clearCanvas(ctx, canvas) {
   ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-bg');
