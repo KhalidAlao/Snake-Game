@@ -1,10 +1,10 @@
-import config from './config.js';
+import { API_BASE_URL } from './config.js';
 
 class AuthService {
   constructor() {
     this.token = localStorage.getItem('authToken');
     this.username = localStorage.getItem('username');
-    this.apiBaseUrl = config.API_BASE_URL; // Store config in instance
+    this.apiBaseUrl = API_BASE_URL; // Store config in instance
   }
 
   async login(username, password) {

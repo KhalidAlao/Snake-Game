@@ -2,25 +2,23 @@ package com.snakegame.backend.repository;
 
 import com.snakegame.backend.model.LeaderboardEntry;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface LeaderboardRepository extends JpaRepository<LeaderboardEntry, Long> {
     
-    // Get top 5 entries ordered by score (desc) and timestamp (asc for tie-breaking)
+    List<LeaderboardEntry> findAllByOrderByScoreDescTimestampAsc();
     List<LeaderboardEntry> findTop5ByOrderByScoreDescTimestampAsc();
     
-    // Get all entries ordered for pruning
-    List<LeaderboardEntry> findAllByOrderByScoreDescTimestampAsc();
-    
-    // Custom method to clear all entries
-    @Modifying
-    @Transactional
-    @Query("DELETE FROM LeaderboardEntry")
-    void clear();
+    // Check for duplicate submissions within a time window
+    @Query("SELECT e FROM LeaderboardEntry e WHERE e.name = :name AND e.score = :score AND e.timestamp > :minTimestamp ORDER BY e.timestamp DESC")
+    Optional<LeaderboardEntry> findTopByNameAndScoreAndTimestampAfterOrderByTimestampDesc(
+        @Param("name") String name, 
+        @Param("score") int score, 
+        @Param("minTimestamp") long minTimestamp);
 }

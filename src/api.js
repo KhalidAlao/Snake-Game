@@ -1,7 +1,7 @@
-import config from './config.js';
+import { API_BASE_URL } from './config.js';
 import authService from './auth.js';
 
-const API_BASE_URL = `${config.API_BASE_URL}/leaderboard`;
+const LEADERBOARD_API_URL = `${API_BASE_URL}/leaderboard`;
 
 // Simple cache implementation
 let leaderboardCache = null;
@@ -27,7 +27,7 @@ export async function fetchLeaderboard() {
   }
 
   try {
-    const response = await fetch(API_BASE_URL, {
+    const response = await fetch(LEADERBOARD_API_URL, {
       headers: getAuthHeaders(),
     });
 
@@ -41,33 +41,27 @@ export async function fetchLeaderboard() {
 
     return data;
   } catch (error) {
-    console.error('Error fetching leaderboard:', error);
     // Return cached data even if stale as fallback
     return leaderboardCache || [];
   }
 }
 
 export async function submitScore(name, score) {
-  try {
-    const response = await fetch(API_BASE_URL, {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify({ name, score }),
-    });
+  const response = await fetch(`${API_BASE_URL}/leaderboard`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ name, score }),
+  });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Failed to submit score: ${response.status} - ${errorText}`);
-    }
-
-    // Invalidate cache on successful submission
-    leaderboardCache = null;
-
-    return response.text();
-  } catch (error) {
-    console.error('Error submitting score:', error);
-    throw error;
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Failed to submit score: ${response.status} - ${errorText}`);
   }
+
+  // Invalidate cache on successful submission
+  leaderboardCache = null;
+
+  return response.text();
 }
 
 // Clear cache (useful for testing)

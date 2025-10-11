@@ -19,7 +19,6 @@ import {
 import { showLeaderboard, initLeaderboardUI, promptTopScore } from './leaderboardUI.js';
 import { initInput, getInputDirection, resetDirection } from './input.js';
 import { initAuthUI, tryAutoLogin } from './authUI.js';
-import authService from './auth.js';
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -216,7 +215,7 @@ function init() {
   initInputHandling();
   initTheme();
   initHelpSystem();
-  initAuthUI(); 
+  initAuthUI();
   tryAutoLogin();
   initLeaderboardUI(startGame);
   resize();

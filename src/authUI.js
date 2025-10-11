@@ -1,38 +1,43 @@
 import authService from './auth.js';
 
-const loginModal = document.getElementById('loginModal');
-const registerModal = document.getElementById('registerModal');
-const loginForm = document.getElementById('login-form');
-const registerForm = document.getElementById('register-form');
-const closeLogin = document.getElementById('close-login');
-const closeRegister = document.getElementById('close-register');
-const loginError = document.getElementById('login-error');
-const registerError = document.getElementById('register-error');
+let loginModal;
+let registerModal;
+let loginForm;
+let registerForm;
+let closeLogin;
+let closeRegister;
+let loginError;
+let registerError;
 
 function showLoginModal() {
+  if (!loginModal || !loginError) return;
   loginModal.classList.remove('hidden');
   loginError.classList.add('hidden');
-  document.getElementById('login-username').focus();
+  const input = document.getElementById('login-username');
+  if (input) input.focus();
 }
 
 function hideLoginModal() {
+  if (!loginModal || !loginForm) return;
   loginModal.classList.add('hidden');
   loginForm.reset();
 }
 
 function showRegisterModal() {
+  if (!registerModal || !registerError) return;
   registerModal.classList.remove('hidden');
   registerError.classList.add('hidden');
-  document.getElementById('register-username').focus();
+  const input = document.getElementById('register-username');
+  if (input) input.focus();
 }
 
 function hideRegisterModal() {
+  if (!registerModal || !registerForm) return;
   registerModal.classList.add('hidden');
   registerForm.reset();
 }
 
 function showSuccessMessage(message) {
-  // Create a temporary success message
   const successMsg = document.createElement('div');
   successMsg.className = 'success-message';
   successMsg.textContent = message;
@@ -46,9 +51,7 @@ function showSuccessMessage(message) {
     border-radius: 5px;
     z-index: 1000;
   `;
-
   document.body.appendChild(successMsg);
-
   setTimeout(() => {
     document.body.removeChild(successMsg);
   }, 3000);
@@ -56,10 +59,8 @@ function showSuccessMessage(message) {
 
 async function handleLogin(e) {
   e.preventDefault();
-
   const username = document.getElementById('login-username').value;
   const password = document.getElementById('login-password').value;
-
   try {
     await authService.login(username, password);
     hideLoginModal();
@@ -73,10 +74,8 @@ async function handleLogin(e) {
 
 async function handleRegister(e) {
   e.preventDefault();
-
   const username = document.getElementById('register-username').value;
   const password = document.getElementById('register-password').value;
-
   try {
     await authService.register(username, password);
     hideRegisterModal();
@@ -92,23 +91,32 @@ function handleLogout() {
   showSuccessMessage('Logged out successfully!');
 }
 
+// Public init function - safe DOM access
 export function initAuthUI() {
-  // Set up event listeners
-  document.getElementById('login-btn').addEventListener('click', showLoginModal);
-  document.getElementById('register-btn').addEventListener('click', showRegisterModal);
-  document.getElementById('logout-btn').addEventListener('click', handleLogout);
+  loginModal = document.getElementById('loginModal');
+  registerModal = document.getElementById('registerModal');
+  loginForm = document.getElementById('login-form');
+  registerForm = document.getElementById('register-form');
+  closeLogin = document.getElementById('close-login');
+  closeRegister = document.getElementById('close-register');
+  loginError = document.getElementById('login-error');
+  registerError = document.getElementById('register-error');
 
-  closeLogin.addEventListener('click', hideLoginModal);
-  closeRegister.addEventListener('click', hideRegisterModal);
+  // Wire UI
+  document.getElementById('login-btn')?.addEventListener('click', showLoginModal);
+  document.getElementById('register-btn')?.addEventListener('click', showRegisterModal);
+  document.getElementById('logout-btn')?.addEventListener('click', handleLogout);
 
-  loginForm.addEventListener('submit', handleLogin);
-  registerForm.addEventListener('submit', handleRegister);
+  if (closeLogin) closeLogin.addEventListener('click', hideLoginModal);
+  if (closeRegister) closeRegister.addEventListener('click', hideRegisterModal);
 
-  // Initialize UI state
+  if (loginForm) loginForm.addEventListener('submit', handleLogin);
+  if (registerForm) registerForm.addEventListener('submit', handleRegister);
+
+  // Set initial UI state
   authService.updateUI();
 }
 
-// Auto-login if token exists
 export function tryAutoLogin() {
   if (authService.isAuthenticated()) {
     authService.updateUI();

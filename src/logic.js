@@ -1,5 +1,6 @@
+import { GRID_SIZE } from './config.js';
+
 let snake = [];
-export const GRID_SIZE = 20;
 let dx = GRID_SIZE;
 let dy = 0;
 const food = { x: 0, y: 0 };
@@ -85,7 +86,6 @@ export function step() {
   return ateFood;
 }
 
-// Updated to accept direction object from input system
 export function changeDirection(direction) {
   // direction should be { x: -1|0|1, y: -1|0|1 }
   if (direction && typeof direction.x === 'number' && typeof direction.y === 'number') {

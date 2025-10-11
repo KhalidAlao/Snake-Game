@@ -2,12 +2,21 @@ package com.snakegame.backend.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
+
+/**
+ * SecurityConfig - configures stateless JWT-based security.
+ * - /api/auth/** is public
+ * - GET /api/leaderboard is public
+ * - POST /api/leaderboard requires authentication
+ * - other endpoints require authentication
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -24,18 +33,19 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(csrf -> csrf.disable())
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/leaderboard").permitAll() // Allow public read access
-                .requestMatchers("/api/leaderboard/**").authenticated() // Require auth for write operations
-                .anyRequest().authenticated()
-            )
-            .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class);
+public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationEntryPoint entryPoint) throws Exception {
+    http
+        .csrf(csrf -> csrf.disable())
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .exceptionHandling(e -> e.authenticationEntryPoint(entryPoint))
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/api/auth/**").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/leaderboard").permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/leaderboard").authenticated()
+            .anyRequest().authenticated()
+        )
+        .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
-    }
+    return http.build();
+}
 }

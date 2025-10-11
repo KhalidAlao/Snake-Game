@@ -3,6 +3,7 @@ import { fetchLeaderboard, submitScore } from './api.js';
 
 let entries = [];
 let onChange = null;
+let submitting = false;
 
 // Fetch latest leaderboard from backend
 export async function getEntries() {
@@ -18,17 +19,19 @@ export async function getEntries() {
 
 // Add or update an entry
 export async function addOrUpdateEntry(name, score) {
+  if (submitting) return; // prevent duplicate calls
+  submitting = true;
+
   try {
     await submitScore(name, score);
-    await new Promise((resolve) => {
-      setTimeout(resolve, 100);
-    }); // slight delay
     const updatedEntries = await getEntries();
     entries = updatedEntries;
     if (onChange) onChange(entries);
   } catch (err) {
     console.error('Failed to submit score:', err);
     throw err;
+  } finally {
+    submitting = false;
   }
 }
 
