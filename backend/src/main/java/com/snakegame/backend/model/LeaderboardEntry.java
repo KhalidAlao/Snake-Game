@@ -11,7 +11,7 @@ public class LeaderboardEntry {
     private Long id;
     private String name;
     private int score;
-    private long timestamp; // Add this field
+    private long timestamp; 
 
     public LeaderboardEntry() {}
 
@@ -31,6 +31,6 @@ public class LeaderboardEntry {
     public int getScore() { return score; }
     public void setScore(int score) { this.score = score; }
     
-    public long getTimestamp() { return timestamp; } // Add getter
-    public void setTimestamp(long timestamp) { this.timestamp = timestamp; } // Add setter
+    public long getTimestamp() { return timestamp; } 
+    public void setTimestamp(long timestamp) { this.timestamp = timestamp; } 
 }

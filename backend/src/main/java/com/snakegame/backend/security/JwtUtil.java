@@ -2,27 +2,42 @@ package com.snakegame.backend.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.stereotype.Component;
+
 import javax.crypto.SecretKey;
 import java.util.Date;
 
+@Component
 public class JwtUtil {
 
-    // FIXED: Use the new API to generate key - no more SignatureAlgorithm
-    private static final SecretKey key = Keys.hmacShaKeyFor(
-        "mySuperSecretKeyThatIsAtLeast32BytesLong!".getBytes()
-    );
-    
-    private static final long EXPIRATION_MS = 24 * 60 * 60 * 1000; // 24h
+    private final SecretKey key;
+    private final long expirationMs;
 
-    public static String generateToken(String username) {
+    public JwtUtil() {
+        // Read from environment variable with secure fallback
+        String secretKey = System.getenv("JWT_SECRET");
+        if (secretKey == null || secretKey.trim().isEmpty()) {
+            throw new IllegalStateException("JWT_SECRET environment variable is required");
+        }
+        
+        if (secretKey.length() < 32) {
+            throw new IllegalArgumentException("JWT secret must be at least 32 characters long");
+        }
+        
+        this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
+        this.expirationMs = 3600000; // 1 hour
+    }
+
+    public String generateToken(String username) {
         return Jwts.builder()
                 .subject(username)
-                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_MS))
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(key)
                 .compact();
     }
 
-    public static String validateTokenAndGetUsername(String token) {
+    public String validateTokenAndGetUsername(String token) {
         try {
             return Jwts.parser()
                     .verifyWith(key)
@@ -31,7 +46,7 @@ public class JwtUtil {
                     .getPayload()
                     .getSubject();
         } catch (JwtException e) {
-            throw new JwtException("Invalid JWT token", e);
+            throw new JwtException("Invalid JWT token: " + e.getMessage());
         }
     }
 }

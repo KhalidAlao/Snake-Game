@@ -2,6 +2,7 @@ package com.snakegame.backend.service;
 
 import com.snakegame.backend.model.User;
 import com.snakegame.backend.repository.UserRepository;
+import com.snakegame.backend.util.ValidationUtil;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,10 @@ public class UserService {
     }
 
     public User registerUser(String username, String password) {
+        if (!ValidationUtil.isValidPassword(password)) {
+            throw new IllegalArgumentException("Password must be 6-100 characters");
+        }
+        
         String hashed = passwordEncoder.encode(password);
         User user = new User(username, hashed);
         return userRepository.save(user);
@@ -27,7 +32,6 @@ public class UserService {
                 .orElse(false);
     }
 
-    // ADD THIS MISSING METHOD
     public boolean existsByUsername(String username) {
         return userRepository.findByUsername(username).isPresent();
     }

@@ -1,4 +1,4 @@
-import { GRID_SIZE, KEY_LEFT, KEY_UP, KEY_RIGHT, KEY_DOWN } from './constants.js';
+import { GRID_SIZE } from './constants.js';
 
 let snake = [];
 let dx = GRID_SIZE;
@@ -46,11 +46,14 @@ export function initGame() {
 export function isGameRunning() {
   return gameRunning;
 }
+
 export function isPaused() {
   return paused;
 }
+
 export function togglePause() {
   paused = !paused;
+  return paused;
 }
 
 export function getSnake() {
@@ -83,26 +86,15 @@ export function step() {
   return ateFood;
 }
 
-export function changeDirection(key) {
-  const goingUp = dy === -GRID_SIZE;
-  const goingDown = dy === GRID_SIZE;
-  const goingRight = dx === GRID_SIZE;
-  const goingLeft = dx === -GRID_SIZE;
-
-  if ((key === KEY_LEFT || key === 'ArrowLeft') && !goingRight) {
-    dx = -GRID_SIZE;
-    dy = 0;
-  }
-  if ((key === KEY_UP || key === 'ArrowUp') && !goingDown) {
-    dx = 0;
-    dy = -GRID_SIZE;
-  }
-  if ((key === KEY_RIGHT || key === 'ArrowRight') && !goingLeft) {
-    dx = GRID_SIZE;
-    dy = 0;
-  }
-  if ((key === KEY_DOWN || key === 'ArrowDown') && !goingUp) {
-    dx = 0;
-    dy = GRID_SIZE;
+// Updated to accept direction object from input system
+export function changeDirection(direction) {
+  // direction should be { x: -1|0|1, y: -1|0|1 }
+  if (direction && typeof direction.x === 'number' && typeof direction.y === 'number') {
+    // Prevent 180-degree turns (extra safety)
+    if ((dx === -direction.x * GRID_SIZE && dy === -direction.y * GRID_SIZE)) {
+      return;
+    }
+    dx = direction.x * GRID_SIZE;
+    dy = direction.y * GRID_SIZE;
   }
 }

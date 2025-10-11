@@ -1,47 +1,86 @@
 let inputDirection = { x: 1, y: 0 };
 let lastInputDirection = { x: 1, y: 0 };
+let pauseCallback = null;
 
 function setDirection(x, y) {
+  // Prevent 180-degree turns (can't go directly opposite)
   if (lastInputDirection.x === -x && lastInputDirection.y === -y) return;
   inputDirection = { x, y };
 }
 
 function handleKeyDown(e) {
-  if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) e.preventDefault();
+  // Handle pause key first
+  if (e.key === 'p' || e.key === 'P') {
+    e.preventDefault();
+    if (pauseCallback) {
+      pauseCallback();
+    }
+    return;
+  }
 
-  switch (e.key) {
-    case 'ArrowUp':
-      setDirection(0, -1);
-      break;
-    case 'ArrowDown':
-      setDirection(0, 1);
-      break;
-    case 'ArrowLeft':
-      setDirection(-1, 0);
-      break;
-    case 'ArrowRight':
-      setDirection(1, 0);
-      break;
-    default:
-      break;
+  // Handle direction keys
+  if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+    e.preventDefault();
+    
+    switch (e.key) {
+      case 'ArrowUp':
+        setDirection(0, -1);
+        break;
+      case 'ArrowDown':
+        setDirection(0, 1);
+        break;
+      case 'ArrowLeft':
+        setDirection(-1, 0);
+        break;
+      case 'ArrowRight':
+        setDirection(1, 0);
+        break;
+      default:
+        break;
+    }
   }
 }
 
 export function getInputDirection() {
-  lastInputDirection = inputDirection;
+  lastInputDirection = { ...inputDirection }; // Store current direction
   return inputDirection;
 }
 
-export function initInput() {
+export function setPauseCallback(callback) {
+  pauseCallback = callback;
+}
+
+export function resetDirection() {
+  inputDirection = { x: 1, y: 0 };
+  lastInputDirection = { x: 1, y: 0 };
+}
+
+export function initInput(onPause) {
+  // Reset direction on init
+  resetDirection();
+  
+  // Set the pause callback
+  pauseCallback = onPause;
+  
+  // Remove any existing event listeners to avoid duplicates
+  window.removeEventListener('keydown', handleKeyDown);
   window.addEventListener('keydown', handleKeyDown);
 
-  const btnUp = document.getElementById('up-btn');
-  const btnDown = document.getElementById('down-btn');
-  const btnLeft = document.getElementById('left-btn');
-  const btnRight = document.getElementById('right-btn');
-
-  if (btnUp) btnUp.addEventListener('click', () => setDirection(0, -1));
-  if (btnDown) btnDown.addEventListener('click', () => setDirection(0, 1));
-  if (btnLeft) btnLeft.addEventListener('click', () => setDirection(-1, 0));
-  if (btnRight) btnRight.addEventListener('click', () => setDirection(1, 0));
+  // Mobile controls - use event delegation to avoid cloning issues
+  document.addEventListener('click', (e) => {
+    switch (e.target.id) {
+      case 'up-btn':
+        setDirection(0, -1);
+        break;
+      case 'down-btn':
+        setDirection(0, 1);
+        break;
+      case 'left-btn':
+        setDirection(-1, 0);
+        break;
+      case 'right-btn':
+        setDirection(1, 0);
+        break;
+    }
+  });
 }

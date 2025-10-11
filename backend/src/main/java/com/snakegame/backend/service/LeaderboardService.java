@@ -3,9 +3,9 @@ package com.snakegame.backend.service;
 import com.snakegame.backend.model.LeaderboardEntry;
 import com.snakegame.backend.repository.LeaderboardRepository;
 import org.springframework.stereotype.Service;
-import java.util.Comparator;
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 
 @Service
 public class LeaderboardService {
@@ -16,29 +16,33 @@ public class LeaderboardService {
         this.repository = repository;
     }
 
+    @Transactional
     public void addEntry(String name, int score) {
-        repository.save(new LeaderboardEntry(name, score));
-
-        // Keep only top 5 scores
-        List<LeaderboardEntry> entries = repository.findAll()
-                .stream()
-                .sorted(Comparator.comparingInt(LeaderboardEntry::getScore).reversed())
-                .toList();
-
-        if (entries.size() > 5) {
-            List<LeaderboardEntry> toRemove = entries.subList(5, entries.size());
-            repository.deleteAll(toRemove);
+        // First, get current top entries to see if we need to prune
+        List<LeaderboardEntry> currentTop = getTopEntries();
+        
+        // Save the new entry
+        LeaderboardEntry newEntry = new LeaderboardEntry(name, score);
+        repository.save(newEntry);
+        
+        // Only prune if we have more than 5 entries total
+        if (currentTop.size() >= 5) {
+            // Get all entries sorted by score (desc) and timestamp (asc for tie-breaking)
+            List<LeaderboardEntry> allEntries = repository.findAllByOrderByScoreDescTimestampAsc();
+            
+            // Keep only top 5
+            if (allEntries.size() > 5) {
+                List<LeaderboardEntry> entriesToDelete = allEntries.subList(5, allEntries.size());
+                repository.deleteAll(entriesToDelete);
+            }
         }
     }
 
     public List<LeaderboardEntry> getTopEntries() {
-        return repository.findAll()
-                .stream()
-                .sorted(Comparator.comparingInt(LeaderboardEntry::getScore).reversed())
-                .limit(5)
-                .toList();
+        return repository.findTop5ByOrderByScoreDescTimestampAsc();
     }
 
+    @Transactional
     public void clearLeaderboard() {
         repository.deleteAll();
     }

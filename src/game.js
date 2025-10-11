@@ -17,6 +17,7 @@ import {
   setLeaderboardChangeCallback,
 } from './leaderboard.js';
 import { showLeaderboard, initLeaderboardUI, promptTopScore } from './leaderboardUI.js';
+import { initInput, getInputDirection, resetDirection } from './input.js';
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -49,10 +50,14 @@ function updateScore(currentScore) {
 
 // Initialize high score from backend
 async function initHighScore() {
-  const entries = await getEntries();
-  if (entries.length > 0) {
-    currentHighScore = entries[0].score;
-    document.getElementById('high-score').textContent = `High Score: ${currentHighScore}`;
+  try {
+    const entries = await getEntries();
+    if (entries.length > 0) {
+      currentHighScore = entries[0].score;
+      document.getElementById('high-score').textContent = `High Score: ${currentHighScore}`;
+    }
+  } catch (error) {
+    console.error('Failed to load high score:', error);
   }
 }
 
@@ -60,17 +65,19 @@ async function initHighScore() {
 async function handleGameOver() {
   if (isNewHighScore || qualifiesForLeaderboard(score)) {
     try {
-      const playerName = await promptTopScore(score); // wait for name input
+      const playerName = await promptTopScore(score);
       if (playerName) {
-        await addOrUpdateEntry(playerName, score); // submit to backend
-        const updatedEntries = await getEntries(); // fetch updated leaderboard
+        await addOrUpdateEntry(playerName, score);
+        const updatedEntries = await getEntries();
         if (updatedEntries.length > 0) {
           currentHighScore = updatedEntries[0].score;
           document.getElementById('high-score').textContent = `High Score: ${currentHighScore}`;
         }
       }
-      // eslint-disable-next-line no-empty
-    } catch (err) {}
+    } catch (err) {
+      console.error('Failed to submit score:', err);
+      showLeaderboard();
+    }
   } else {
     showLeaderboard();
   }
@@ -80,11 +87,33 @@ async function handleGameOver() {
 // Start or restart game
 function startGame() {
   initGame();
+  resetDirection(); // Reset input direction on restart
   score = 0;
   accumulator = 0;
   moveInterval = 200;
   isNewHighScore = false;
   updateScore(0);
+  
+  // Remove pause overlay if it exists
+  const overlay = document.getElementById('pauseOverlay');
+  if (overlay) overlay.remove();
+}
+
+// Add pause indicator
+function drawPauseOverlay() {
+  if (isPaused()) {
+    let overlay = document.getElementById('pauseOverlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.className = 'pause-overlay';
+      overlay.textContent = 'PAUSED - Press P to Resume';
+      overlay.id = 'pauseOverlay';
+      document.querySelector('.canvas-wrapper').appendChild(overlay);
+    }
+  } else {
+    const overlay = document.getElementById('pauseOverlay');
+    if (overlay) overlay.remove();
+  }
 }
 
 // Main game loop
@@ -93,21 +122,31 @@ function mainLoop(timestamp) {
   const delta = timestamp - lastTime;
   lastTime = timestamp;
 
-  if (isGameRunning() && !isPaused()) {
-    accumulator += delta;
-    while (accumulator >= moveInterval) {
-      accumulator -= moveInterval;
-      const ate = step();
-      if (ate) {
-        score += 5;
-        updateScore(score);
-        if (score % 50 === 0) moveInterval = Math.max(50, moveInterval - 20);
-      }
-      if (!isGameRunning()) {
-        handleGameOver();
-        break;
+  if (isGameRunning()) {
+    if (!isPaused()) {
+      // Get current direction from input system and update game logic
+      const direction = getInputDirection();
+      
+      accumulator += delta;
+      while (accumulator >= moveInterval) {
+        accumulator -= moveInterval;
+        
+        // Update direction before each step
+        changeDirection(direction);
+        
+        const ate = step();
+        if (ate) {
+          score += 5;
+          updateScore(score);
+          if (score % 50 === 0) moveInterval = Math.max(50, moveInterval - 20);
+        }
+        if (!isGameRunning()) {
+          handleGameOver();
+          break;
+        }
       }
     }
+    drawPauseOverlay();
   }
 
   clearCanvas(ctx, canvas);
@@ -118,27 +157,54 @@ function mainLoop(timestamp) {
 }
 
 // Input handling
-window.addEventListener('keydown', (e) => {
-  if (e.key === 'p' || e.key === 'P') togglePause();
-  else changeDirection(e.keyCode || e.key);
-  if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) e.preventDefault();
-});
+function initInputHandling() {
+  // Initialize input system with pause callback
+  initInput(togglePause);
+  
+  // Restart buttons
+  restartBtn?.addEventListener('click', startGame);
+  document.getElementById('restart-btn')?.addEventListener('click', startGame);
+}
 
-document.getElementById('up-btn').addEventListener('click', () => changeDirection('ArrowUp'));
-document.getElementById('down-btn').addEventListener('click', () => changeDirection('ArrowDown'));
-document.getElementById('left-btn').addEventListener('click', () => changeDirection('ArrowLeft'));
-document.getElementById('right-btn').addEventListener('click', () => changeDirection('ArrowRight'));
-restartBtn.addEventListener('click', startGame);
-document.getElementById('restart-btn').addEventListener('click', startGame);
+// Theme handling
+function initTheme() {
+  const themeToggle = document.getElementById('theme-toggle');
+  const themeLabel = document.getElementById('theme-label');
+  
+  if (themeToggle && themeLabel) {
+    themeToggle.addEventListener('click', () => {
+      const html = document.documentElement;
+      const newTheme = html.dataset.theme === 'dark' ? 'light' : 'dark';
+      html.dataset.theme = newTheme;
+      themeLabel.textContent = newTheme === 'dark' ? 'Dark Mode' : 'Light Mode';
+      localStorage.setItem('snakeTheme', newTheme);
+    });
 
-// Dark/Light Mode toggle
-const themeToggle = document.getElementById('theme-toggle');
-const themeLabel = document.getElementById('theme-label');
-themeToggle.addEventListener('click', () => {
-  const html = document.documentElement;
-  html.dataset.theme = html.dataset.theme === 'dark' ? 'light' : 'dark';
-  themeLabel.textContent = html.dataset.theme === 'dark' ? 'Dark Mode' : 'Light Mode';
-});
+    // Load saved theme
+    const saved = localStorage.getItem('snakeTheme');
+    if (saved) {
+      document.documentElement.setAttribute('data-theme', saved);
+      themeLabel.textContent = saved === 'dark' ? 'Dark Mode' : 'Light Mode';
+    }
+  }
+}
+
+// Help system
+function initHelpSystem() {
+  const helpBtn = document.getElementById('help-btn');
+  const helpModal = document.getElementById('helpModal');
+  const closeHelp = document.getElementById('closeHelp');
+
+  if (helpBtn && helpModal && closeHelp) {
+    helpBtn.addEventListener('click', () => {
+      helpModal.classList.remove('hidden');
+    });
+
+    closeHelp.addEventListener('click', () => {
+      helpModal.classList.add('hidden');
+    });
+  }
+}
 
 // Update high score live when backend leaderboard changes
 setLeaderboardChangeCallback((updatedEntries) => {
@@ -149,8 +215,20 @@ setLeaderboardChangeCallback((updatedEntries) => {
 });
 
 // Initialize everything
-initLeaderboardUI(startGame);
-resize();
-initHighScore();
-startGame();
-requestAnimationFrame(mainLoop);
+function init() {
+  initInputHandling();
+  initTheme();
+  initHelpSystem();
+  initLeaderboardUI(startGame);
+  resize();
+  initHighScore();
+  startGame();
+  requestAnimationFrame(mainLoop);
+}
+
+// Initialize when DOM is loaded
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
