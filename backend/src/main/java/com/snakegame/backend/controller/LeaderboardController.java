@@ -1,10 +1,15 @@
 package com.snakegame.backend.controller;
 
 import com.snakegame.backend.model.LeaderboardEntry;
+import com.snakegame.backend.model.ScoreRequest;
 import com.snakegame.backend.service.LeaderboardService;
 import com.snakegame.backend.util.ValidationUtil;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import java.util.Map;
+
 
 import java.util.List;
 
@@ -24,25 +29,24 @@ public class LeaderboardController {
     }
 
     @PostMapping
-    public ResponseEntity<String> addEntry(@RequestBody LeaderboardEntry entry) {
-        String sanitizedName = ValidationUtil.sanitizeName(entry.getName());
-        
-        if (sanitizedName == null || sanitizedName.trim().isEmpty()) {
-            return ResponseEntity.badRequest().body("Invalid name");
+    public ResponseEntity<?> addEntry(@RequestBody ScoreRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getName() == null) {
+            return ResponseEntity.status(401).body(Map.of("error","Unauthorized"));
         }
-        
-        if (!ValidationUtil.isValidScore(entry.getScore())) {
-            return ResponseEntity.badRequest().body("Invalid score");
+        String username = auth.getName();
+        int score = request.getScore();
+        if (!ValidationUtil.isValidScore(score)) {
+            return ResponseEntity.badRequest().body(Map.of("error","Invalid score"));
         }
-        
-        entry.setName(sanitizedName);
-        leaderboardService.addEntry(entry.getName(), entry.getScore());
-        return ResponseEntity.ok("Entry added successfully");
+        String sanitized = ValidationUtil.sanitizeName(username);
+        leaderboardService.addEntry(sanitized, score);
+        return ResponseEntity.ok(Map.of("message","Entry added"));
     }
 
     @DeleteMapping
-    public ResponseEntity<String> clearLeaderboard() {
+    public ResponseEntity<?> clearLeaderboard() {
         leaderboardService.clearLeaderboard();
-        return ResponseEntity.ok("Leaderboard cleared");
+        return ResponseEntity.ok(Map.of("message","Leaderboard cleared"));
     }
 }

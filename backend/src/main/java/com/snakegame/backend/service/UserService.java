@@ -3,12 +3,16 @@ package com.snakegame.backend.service;
 import com.snakegame.backend.model.User;
 import com.snakegame.backend.repository.UserRepository;
 import com.snakegame.backend.util.ValidationUtil;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-@Service
-public class UserService {
+import java.util.Collections;
 
+@Service
+public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -17,13 +21,10 @@ public class UserService {
     }
 
     public User registerUser(String username, String password) {
-        if (!ValidationUtil.isValidPassword(password)) {
-            throw new IllegalArgumentException("Password must be 6-100 characters");
-        }
-        
-        String hashed = passwordEncoder.encode(password);
-        User user = new User(username, hashed);
-        return userRepository.save(user);
+        if (!ValidationUtil.isValidPassword(password)) throw new IllegalArgumentException("Password invalid");
+        String hash = passwordEncoder.encode(password);
+        User u = new User(username, hash);
+        return userRepository.save(u);
     }
 
     public boolean validateUser(String username, String password) {
@@ -34,5 +35,13 @@ public class UserService {
 
     public boolean existsByUsername(String username) {
         return userRepository.findByUsername(username).isPresent();
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User u = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        // Use Spring's User class to return username, password (hashed) and no authorities
+        return new org.springframework.security.core.userdetails.User(u.getUsername(), u.getPasswordHash(), Collections.emptyList());
     }
 }

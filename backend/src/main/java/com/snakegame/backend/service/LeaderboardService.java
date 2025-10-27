@@ -10,7 +10,6 @@ import java.util.Optional;
 
 @Service
 public class LeaderboardService {
-
     private final LeaderboardRepository repository;
 
     public LeaderboardService(LeaderboardRepository repository) {
@@ -19,37 +18,20 @@ public class LeaderboardService {
 
     @Transactional
     public void addEntry(String name, int score) {
-        long currentTime = System.currentTimeMillis();
-        
-        // Check for recent duplicate submission (within 5 seconds)
-        Optional<LeaderboardEntry> recentDuplicate = repository
-            .findTopByNameAndScoreAndTimestampAfterOrderByTimestampDesc(
-                name, score, currentTime - 5000);
-            
-        if (recentDuplicate.isPresent()) {
-            System.out.println("⏭️  Skipping duplicate submission: " + name + " - " + score);
-            return;
-        }
-        
-        System.out.println("🔄 Processing score: " + name + " - " + score);
-        
-        // Save the new entry
-        LeaderboardEntry newEntry = new LeaderboardEntry(name, score);
-        repository.save(newEntry);
-        System.out.println("✅ Saved entry with ID: " + newEntry.getId());
-        
-        // Prune to top 5
+        long now = System.currentTimeMillis();
+        Optional<LeaderboardEntry> dup = repository.findTopByNameAndScoreAndTimestampAfterOrderByTimestampDesc(name, score, now - 5000);
+        if (dup.isPresent()) return;
+        LeaderboardEntry entry = new LeaderboardEntry(name, score);
+        repository.save(entry);
         pruneToTop5();
     }
 
     @Transactional
     public void pruneToTop5() {
-        List<LeaderboardEntry> allEntries = repository.findAllByOrderByScoreDescTimestampAsc();
-        
-        if (allEntries.size() > 5) {
-            List<LeaderboardEntry> entriesToDelete = allEntries.subList(5, allEntries.size());
-            System.out.println("🗑️  Deleting " + entriesToDelete.size() + " entries");
-            repository.deleteAll(entriesToDelete);
+        List<LeaderboardEntry> all = repository.findAllByOrderByScoreDescTimestampAsc();
+        if (all.size() > 5) {
+            List<LeaderboardEntry> del = all.subList(5, all.size());
+            repository.deleteAll(del);
         }
     }
 

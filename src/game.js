@@ -60,24 +60,18 @@ async function initHighScore() {
 
 // Handle game over and leaderboard submission
 async function handleGameOver() {
-  if (isNewHighScore || qualifiesForLeaderboard(score)) {
-    try {
-      const playerName = await promptTopScore(score);
-      if (playerName) {
-        await addOrUpdateEntry(playerName, score);
-        const updatedEntries = await getEntries();
-        if (updatedEntries.length > 0) {
-          currentHighScore = updatedEntries[0].score;
-          document.getElementById('high-score').textContent = `High Score: ${currentHighScore}`;
-        }
-      }
-    } catch (err) {
-      showLeaderboard();
+  try {
+    if (isNewHighScore || qualifiesForLeaderboard(score)) {
+      await promptTopScore(score); // handles auth + backend submission + refresh
     }
-  } else {
-    showLeaderboard();
+
+    await showLeaderboard(); // always display backend leaderboard
+  } catch (err) {
+    console.error('Error handling game over:', err);
+    await showLeaderboard(); // still show even if something fails
+  } finally {
+    isNewHighScore = false;
   }
-  isNewHighScore = false;
 }
 
 // Start or restart game

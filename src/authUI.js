@@ -1,3 +1,4 @@
+// src/authUI.js
 import authService from './auth.js';
 
 let loginModal;
@@ -59,29 +60,28 @@ function showSuccessMessage(message) {
 
 async function handleLogin(e) {
   e.preventDefault();
-  const username = document.getElementById('login-username').value;
+  const username = document.getElementById('login-username').value.trim();
   const password = document.getElementById('login-password').value;
   try {
     await authService.login(username, password);
     hideLoginModal();
-    authService.updateUI();
     showSuccessMessage('Login successful!');
   } catch (error) {
-    loginError.textContent = error.message;
+    loginError.textContent = error.message || 'Login failed';
     loginError.classList.remove('hidden');
   }
 }
 
 async function handleRegister(e) {
   e.preventDefault();
-  const username = document.getElementById('register-username').value;
+  const username = document.getElementById('register-username').value.trim();
   const password = document.getElementById('register-password').value;
   try {
     await authService.register(username, password);
     hideRegisterModal();
     showSuccessMessage('Registration successful! Please login.');
   } catch (error) {
-    registerError.textContent = error.message;
+    registerError.textContent = error.message || 'Registration failed';
     registerError.classList.remove('hidden');
   }
 }

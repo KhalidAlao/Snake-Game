@@ -1,70 +1,87 @@
-import { API_BASE_URL } from './config.js';
+import config from './config.js';
 import authService from './auth.js';
 
-const LEADERBOARD_API_URL = `${API_BASE_URL}/leaderboard`;
-
-// Simple cache implementation
+const LEADERBOARD_API_URL = `${config.API_BASE_URL}/leaderboard`;
+const CACHE_DURATION = 10000;
 let leaderboardCache = null;
 let cacheTimestamp = 0;
-const CACHE_DURATION = 30000; // 30 seconds
 
-function getAuthHeaders() {
-  const baseHeaders = {
+/**
+ * Build headers for any request: always includes JWT if logged in
+ */
+function getHeaders() {
+  return {
     'Content-Type': 'application/json',
+    ...authService.getAuthHeader(), // Adds Authorization: Bearer <token> if present
   };
-
-  // Add auth header if user is logged in
-  const authHeader = authService.getAuthHeader();
-  return { ...baseHeaders, ...authHeader };
 }
 
+/**
+ * GET leaderboard with JWT in Authorization header.
+ * Uses cache for 30s to reduce requests.
+ */
 export async function fetchLeaderboard() {
   const now = Date.now();
-
-  // Return cached data if still valid
-  if (leaderboardCache && now - cacheTimestamp < CACHE_DURATION) {
-    return leaderboardCache;
-  }
+  if (leaderboardCache && now - cacheTimestamp < CACHE_DURATION) return leaderboardCache;
 
   try {
-    const response = await fetch(LEADERBOARD_API_URL, {
-      headers: getAuthHeaders(),
+    const res = await fetch(LEADERBOARD_API_URL, {
+      method: 'GET',
+      headers: getHeaders(),
+      mode: 'cors', // CORS enabled on backend
+      credentials: 'include', // Optional if using cookies (not JWT in header)
     });
 
-    if (!response.ok) throw new Error('Failed to fetch leaderboard');
+    if (!res.ok) throw new Error(`Failed to fetch leaderboard: ${res.status}`);
+    const data = await res.json();
 
-    const data = await response.json();
-
-    // Update cache
     leaderboardCache = data;
     cacheTimestamp = now;
-
     return data;
-  } catch (error) {
-    // Return cached data even if stale as fallback
+  } catch (err) {
     return leaderboardCache || [];
   }
 }
 
-export async function submitScore(name, score) {
-  const response = await fetch(`${API_BASE_URL}/leaderboard`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify({ name, score }),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Failed to submit score: ${response.status} - ${errorText}`);
+/**
+ * POST score to backend, always includes JWT
+ */
+export async function submitScore(score) {
+  if (!authService.isAuthenticated()) {
+    throw new Error('Not authenticated');
   }
 
-  // Invalidate cache on successful submission
-  leaderboardCache = null;
+  try {
+    const res = await fetch(LEADERBOARD_API_URL, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ score }),
+      mode: 'cors',
+      credentials: 'include',
+    });
 
-  return response.text();
+    if (!res.ok) {
+      const txt = await res.text().catch(() => '');
+      throw new Error(`Submit failed: ${res.status} ${txt}`);
+    }
+
+    // Invalidate cache after submission
+    leaderboardCache = null;
+    cacheTimestamp = 0;
+
+    try {
+      return await res.json();
+    } catch {
+      return null;
+    }
+  } catch (err) {
+    throw err;
+  }
 }
 
-// Clear cache (useful for testing)
+/**
+ * Clear cached leaderboard
+ */
 export function clearCache() {
   leaderboardCache = null;
   cacheTimestamp = 0;
