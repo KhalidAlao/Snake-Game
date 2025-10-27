@@ -1,7 +1,7 @@
-import config from './config.js';
+import { API_BASE_URL } from './config.js';
 import authService from './auth.js';
 
-const LEADERBOARD_API_URL = `${config.API_BASE_URL}/leaderboard`;
+const LEADERBOARD_API_URL = `${API_BASE_URL}/leaderboard`;
 const CACHE_DURATION = 10000;
 let leaderboardCache = null;
 let cacheTimestamp = 0;
@@ -51,31 +51,27 @@ export async function submitScore(score) {
     throw new Error('Not authenticated');
   }
 
+  const res = await fetch(LEADERBOARD_API_URL, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({ score }),
+    mode: 'cors',
+    credentials: 'include',
+  });
+
+  if (!res.ok) {
+    const txt = await res.text().catch(() => '');
+    throw new Error(`Submit failed: ${res.status} ${txt}`);
+  }
+
+  // Invalidate cache after submission
+  leaderboardCache = null;
+  cacheTimestamp = 0;
+
   try {
-    const res = await fetch(LEADERBOARD_API_URL, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify({ score }),
-      mode: 'cors',
-      credentials: 'include',
-    });
-
-    if (!res.ok) {
-      const txt = await res.text().catch(() => '');
-      throw new Error(`Submit failed: ${res.status} ${txt}`);
-    }
-
-    // Invalidate cache after submission
-    leaderboardCache = null;
-    cacheTimestamp = 0;
-
-    try {
-      return await res.json();
-    } catch {
-      return null;
-    }
-  } catch (err) {
-    throw err;
+    return await res.json();
+  } catch {
+    return null;
   }
 }
 

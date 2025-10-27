@@ -3,7 +3,7 @@
 // Stores JWT in localStorage under TOKEN_KEY and exposes helpers
 // to login/register/logout and to produce Authorization headers.
 
-import config from './config.js';
+import { API_BASE_URL } from './config.js';
 
 const TOKEN_KEY = 'jwt_token';
 
@@ -77,7 +77,7 @@ const authService = {
       throw new Error('Username and password required');
     }
 
-    const res = await fetch(`${config.API_BASE_URL}/auth/login`, {
+    const res = await fetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }),
@@ -85,10 +85,10 @@ const authService = {
 
     if (!res.ok) {
       let errMsg = `Login failed (${res.status})`;
-      try {
-        const json = await res.json();
-        errMsg = json.error || json.message || errMsg;
-      } catch {}
+
+      const json = await res.json();
+      errMsg = json.error || json.message || errMsg;
+
       throw new Error(errMsg);
     }
 
@@ -115,10 +115,10 @@ const authService = {
 
     if (!res.ok) {
       let errMsg = `Registration failed (${res.status})`;
-      try {
-        const json = await res.json();
-        errMsg = json.error || json.message || errMsg;
-      } catch {}
+
+      const json = await res.json();
+      errMsg = json.error || json.message || errMsg;
+
       throw new Error(errMsg);
     }
 

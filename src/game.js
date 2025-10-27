@@ -12,7 +12,6 @@ import {
 import { clearCanvas, drawSnake, drawFood } from './renderer.js';
 import {
   getEntries,
-  addOrUpdateEntry,
   qualifiesForLeaderboard,
   setLeaderboardChangeCallback,
 } from './leaderboard.js';
@@ -67,7 +66,6 @@ async function handleGameOver() {
 
     await showLeaderboard(); // always display backend leaderboard
   } catch (err) {
-    console.error('Error handling game over:', err);
     await showLeaderboard(); // still show even if something fails
   } finally {
     isNewHighScore = false;

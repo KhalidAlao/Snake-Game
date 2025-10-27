@@ -10,6 +10,7 @@ const submitNameBtn = document.getElementById('submitName');
 const playAgainBtn = document.getElementById('restart-game');
 const closeBtn = document.getElementById('closeLeaderboard');
 
+// eslint-disable-next-line no-unused-vars
 let isLoading = false;
 let submissionLock = null;
 let pendingScore = null;
