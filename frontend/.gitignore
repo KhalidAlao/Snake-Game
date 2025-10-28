@@ -1,24 +1,16 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# JWT Configuration 
+JWT_SECRET=Ko8eBryant24-snake-game-jwt-secret-2024-backend
 
-node_modules
-dist
-dist-ssr
-*.local
+# Database Configuration
+DATABASE_URL=jdbc:postgresql://localhost:5432/snakegame
+DATABASE_USERNAME=snakeuser
+DATABASE_PASSWORD=Ko8eBryant24
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+# CORS Configuration
+ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:5500,http://localhost:5500
+
+# Application Port
+SERVER_PORT=8080
+
+# Environment
+SPRING_PROFILES_ACTIVE=dev

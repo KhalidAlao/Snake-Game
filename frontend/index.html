@@ -1,13 +1,134 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
+    <title>Snake Game</title>
+    <meta name="description" content="Snake Game — play, set high scores and compete. Built with vanilla JS and a leaderboard API." />
+    <meta name="theme-color" content="#111111" />
+    <!-- Favicon (add your favicon file at /favicon.ico) -->
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.js"></script>
+    <div class="header">
+      <h1 id="site-title">Snake Game</h1>
+      <div class="header-controls">
+        <!-- Authentication Section -->
+        <div id="auth-section" class="auth-section">
+          <button id="login-btn" class="auth-btn" aria-controls="loginModal">Login</button>
+          <button id="register-btn" class="auth-btn" aria-controls="registerModal">Register</button>
+        </div>
+
+        <!-- User Section (hidden when not logged in) -->
+        <div id="user-section" class="user-section hidden" aria-live="polite">
+          <span>Welcome, <span id="username-display"></span></span>
+          <button id="logout-btn" class="auth-btn">Logout</button>
+        </div>
+
+        <div class="theme-toggle" id="theme-toggle" role="button" tabindex="0" aria-pressed="false">
+          <span id="theme-label">Dark Mode</span>
+          <div class="toggle-switch" id="toggle-switch" aria-hidden="true"></div>
+        </div>
+      </div>
+    </div>
+
+    <main class="game-container" role="main" aria-labelledby="site-title">
+      <div class="score-panel" aria-live="polite">
+        <div id="score">Score: 0</div>
+        <div id="high-score">High Score: 0</div>
+      </div>
+
+      <button id="restart-btn" class="restart-btn" aria-label="Restart game">⟳ Restart</button>
+
+      <div class="canvas-wrapper" role="region" aria-label="Game canvas">
+        <canvas id="gameCanvas" width="600" height="400"></canvas>
+      </div>
+
+      <!-- Leaderboard Modal -->
+      <div class="modal hidden" id="modal" role="dialog" aria-modal="true" aria-labelledby="leaderboard-title" tabindex="-1">
+        <div class="modal-content">
+          <h1 id="leaderboard-title">Leaderboard</h1>
+
+          <!-- Top score input -->
+          <div id="topScoreInput" class="hidden">
+            <p>Congratulations! Enter your name:</p>
+            <input type="text" id="playerName" placeholder="Your name" aria-label="Player name" />
+            <button id="submitName">Submit</button>
+          </div>
+
+          <!-- Leaderboard list -->
+          <ul id="leaderboardList" aria-live="polite"></ul>
+
+          <!-- Modal actions -->
+          <button id="restart-game">Play Again</button>
+          <button id="closeLeaderboard">Close</button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Help Modal -->
+    <div class="modal hidden" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="help-title" tabindex="-1">
+      <div class="modal-content">
+        <h1 id="help-title">How to Play</h1>
+        <div class="instructions">
+          <p><strong>Controls:</strong></p>
+          <ul>
+            <li>Arrow Keys or D-Pad: Move the snake</li>
+            <li>P Key: Pause/Resume game</li>
+            <li>Restart Button: Start new game</li>
+          </ul>
+          <p><strong>Rules:</strong></p>
+          <ul>
+            <li>Eat food (red circles) to grow and score points</li>
+            <li>Avoid hitting walls or yourself</li>
+            <li>Game speeds up as you score more points</li>
+            <li>Top 5 scores make the leaderboard!</li>
+          </ul>
+        </div>
+        <button id="closeHelp">Got it!</button>
+      </div>
+    </div>
+
+    <!-- Help Button -->
+    <button id="help-btn" class="help-btn" aria-label="Help">?</button>
+
+    <div class="dpad" role="group" aria-label="On-screen d-pad">
+      <button class="up" id="up-btn" aria-label="Up">▲</button>
+      <div class="middle-row">
+        <button class="left" id="left-btn" aria-label="Left">◀</button>
+        <button class="down" id="down-btn" aria-label="Down">▼</button>
+        <button class="right" id="right-btn" aria-label="Right">▶</button>
+      </div>
+    </div>
+
+    <!-- Add Auth Modals -->
+    <div class="modal hidden" id="loginModal" role="dialog" aria-modal="true" aria-labelledby="login-title" tabindex="-1">
+      <div class="modal-content">
+        <h1 id="login-title">Login</h1>
+        <form id="login-form">
+          <input type="text" id="login-username" placeholder="Username" required aria-label="Username">
+          <input type="password" id="login-password" placeholder="Password" required aria-label="Password">
+          <button type="submit">Login</button>
+        </form>
+        <button id="close-login">Cancel</button>
+        <div id="login-error" class="error-message hidden" role="alert"></div>
+      </div>
+    </div>
+
+    <div class="modal hidden" id="registerModal" role="dialog" aria-modal="true" aria-labelledby="register-title" tabindex="-1">
+      <div class="modal-content">
+        <h1 id="register-title">Register</h1>
+        <form id="register-form">
+          <input type="text" id="register-username" placeholder="Username" required aria-label="Username">
+          <input type="password" id="register-password" placeholder="Password" required aria-label="Password">
+          <button type="submit">Register</button>
+        </form>
+        <button id="close-register">Cancel</button>
+        <div id="register-error" class="error-message hidden" role="alert"></div>
+      </div>
+    </div>
+
+    <script type="module" src="./src/game.js"></script>
   </body>
 </html>
