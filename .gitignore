@@ -31,3 +31,7 @@ node_modules
 node_modules
 node_modules
 node_modules
+
+# Vite environment files
+.env
+.env.*
