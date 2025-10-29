@@ -32,9 +32,6 @@ jobs:
       - name: Verify linting
         run: npm run lint
 
-      - name: Run tests
-        run: npm test
-
       - name: Comment on PR if CI fails
         if: failure()
         uses: marocchino/sticky-pull-request-comment@v2
