@@ -16,14 +16,12 @@ import java.util.List;
 @Configuration
 public class CorsConfig {
 
-    // Comma-separated defaults provided; can be overridden via application.properties
-    @Value("${cors.allowed-origins:http://localhost:5500,http://127.0.0.1:5500,http://localhost:5174,http://localhost:5173}")
+    @Value("${cors.allowed-origins}")
     private String[] allowedOrigins;
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
         List<String> origins = Arrays.asList(allowedOrigins);
         configuration.setAllowedOrigins(origins);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
@@ -37,8 +35,7 @@ public class CorsConfig {
 
     @Bean
     public FilterRegistrationBean<CorsFilter> corsFilterRegistration(CorsConfigurationSource corsConfigurationSource) {
-        CorsFilter corsFilter = new CorsFilter(corsConfigurationSource);
-        FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(corsFilter);
+        FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(new CorsFilter(corsConfigurationSource));
         bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
         return bean;
     }
