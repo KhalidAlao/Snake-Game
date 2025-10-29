@@ -8,15 +8,15 @@ import {
   isPaused,
   togglePause,
   setDimensions,
-} from '../src/logic.js';
-import { clearCanvas, drawSnake, drawFood } from '../src/renderer.js';
+} from './logic.js';
+import { clearCanvas, drawSnake, drawFood } from './renderer.js';
 import {
   getEntries,
   qualifiesForLeaderboard,
   setLeaderboardChangeCallback,
-} from '../src/leaderboard.js';
-import { showLeaderboard, initLeaderboardUI, promptTopScore } from '../src/leaderboardUI.js';
-import { initInput, getInputDirection, resetDirection } from '../src/input.js';
+} from './leaderboard.js';
+import { showLeaderboard, initLeaderboardUI, promptTopScore } from './leaderboardUI.js';
+import { initInput, getInputDirection, resetDirection } from './input.js';
 import { initAuthUI, tryAutoLogin } from './authUI.js';
 
 const canvas = document.getElementById('gameCanvas');
