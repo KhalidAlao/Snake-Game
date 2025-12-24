@@ -36,3 +36,7 @@ build/
 .env
 .env.*
 
+# Application properties (local overrides)
+application-local.properties
+application-dev.properties
+application-prod.properties

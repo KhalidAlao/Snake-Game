@@ -1,10 +1,10 @@
 /* eslint-disable no-alert */
-// src/leaderboard.js
+
 import { fetchLeaderboard, submitScore } from './api.js';
 import authService from './auth.js';
 
-const leaderboardList = document.getElementById('leaderboardList'); // matches index.html
-// index.html doesn't define '#leaderboard-error' - we'll render errors into the list instead
+const leaderboardList = document.getElementById('leaderboardList'); 
+
 
 let entries = [];
 let onChange = null;
@@ -51,9 +51,7 @@ export async function addOrUpdateEntry(name, score) {
   }
 }
 
-/**
- * Render leaderboard entries on screen
- */
+
 export async function renderLeaderboard() {
   try {
     const data = await fetchLeaderboard();
@@ -82,9 +80,8 @@ export async function renderLeaderboard() {
   }
 }
 
-/**
- * Try submitting the player's score to the backend
- */
+
+ 
 export async function handleScoreSubmission(score) {
   try {
     if (!authService.isAuthenticated()) {
@@ -94,16 +91,14 @@ export async function handleScoreSubmission(score) {
 
     await submitScore(score);
 
-    alert('✅ Score submitted!');
+    alert('Score submitted!');
     await renderLeaderboard();
   } catch (err) {
-    alert(`❌ Failed to submit score: ${err.message || err}`);
+    alert(`Failed to submit score: ${err.message || err}`);
   }
 }
 
-/**
- * Initialize leaderboard section
- */
+
 export function initLeaderboard() {
   // initial render
   renderLeaderboard();

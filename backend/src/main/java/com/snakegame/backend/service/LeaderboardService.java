@@ -5,6 +5,7 @@ import com.snakegame.backend.repository.LeaderboardRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,7 +31,7 @@ public class LeaderboardService {
     public void pruneToTop5() {
         List<LeaderboardEntry> all = repository.findAllByOrderByScoreDescTimestampAsc();
         if (all.size() > 5) {
-            List<LeaderboardEntry> del = all.subList(5, all.size());
+            List<LeaderboardEntry> del = new ArrayList<>(all.subList(5, all.size())); // Create a new ArrayList
             repository.deleteAll(del);
         }
     }

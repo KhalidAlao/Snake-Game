@@ -6,78 +6,98 @@ const CACHE_DURATION = 10000;
 let leaderboardCache = null;
 let cacheTimestamp = 0;
 
-/**
- * Build headers for any request: always includes JWT if logged in
- */
-function getHeaders() {
+
+function getPublicHeaders() {
   return {
-    'Content-Type': 'application/json',
-    ...authService.getAuthHeader(), // Adds Authorization: Bearer <token> if present
+    'Accept': 'application/json'
+  
   };
 }
 
-/**
- * GET leaderboard with JWT in Authorization header.
- * Uses cache for 30s to reduce requests.
- */
+
+function getPrivateHeaders() {
+  const headers = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  };
+  
+
+  if (authService.isAuthenticated()) {
+    const token = authService.getToken();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  
+  return headers;
+}
+
 export async function fetchLeaderboard() {
   const now = Date.now();
-  if (leaderboardCache && now - cacheTimestamp < CACHE_DURATION) return leaderboardCache;
+  if (leaderboardCache && now - cacheTimestamp < CACHE_DURATION) {
+    return leaderboardCache;
+  }
 
   try {
+    console.log('Fetching leaderboard...');
+    
+
     const res = await fetch(LEADERBOARD_API_URL, {
       method: 'GET',
-      headers: getHeaders(),
-      mode: 'cors', // CORS enabled on backend
-      credentials: 'include', // Optional if using cookies (not JWT in header)
+      headers: getPublicHeaders(),
     });
 
-    if (!res.ok) throw new Error(`Failed to fetch leaderboard: ${res.status}`);
-    const data = await res.json();
+    console.log('Response status:', res.status);
+    
+    if (!res.ok) {
+      throw new Error(`Failed to fetch leaderboard: ${res.status}`);
+    }
 
+    const data = await res.json();
     leaderboardCache = data;
     cacheTimestamp = now;
     return data;
+    
   } catch (err) {
+    console.error('Fetch leaderboard error:', err);
     return leaderboardCache || [];
   }
 }
 
-/**
- * POST score to backend, always includes JWT
- */
 export async function submitScore(score) {
   if (!authService.isAuthenticated()) {
     throw new Error('Not authenticated');
   }
 
-  const res = await fetch(LEADERBOARD_API_URL, {
-    method: 'POST',
-    headers: getHeaders(),
-    body: JSON.stringify({ score }),
-    mode: 'cors',
-    credentials: 'include',
-  });
-
-  if (!res.ok) {
-    const txt = await res.text().catch(() => '');
-    throw new Error(`Submit failed: ${res.status} ${txt}`);
-  }
-
-  // Invalidate cache after submission
-  leaderboardCache = null;
-  cacheTimestamp = 0;
-
   try {
+
+    const res = await fetch(LEADERBOARD_API_URL, {
+      method: 'POST',
+      headers: getPrivateHeaders(),
+      body: JSON.stringify({ score }),
+    });
+
+    if (res.status === 401 || res.status === 403) {
+      authService.logout();
+      throw new Error('Session expired. Please log in again.');
+    }
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(`Submit failed: ${res.status} ${errorText}`);
+    }
+
+    // Invalidate cache after submission
+    leaderboardCache = null;
+    cacheTimestamp = 0;
+
     return await res.json();
-  } catch {
-    return null;
+  } catch (error) {
+    console.error('Submit score error:', error);
+    throw error;
   }
 }
 
-/**
- * Clear cached leaderboard
- */
 export function clearCache() {
   leaderboardCache = null;
   cacheTimestamp = 0;

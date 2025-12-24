@@ -1,157 +1,216 @@
-// src/auth.js
-// Central auth helper used by the UI and API calls.
-// Stores JWT in localStorage under TOKEN_KEY and exposes helpers
-// to login/register/logout and to produce Authorization headers.
-
 import { API_BASE_URL } from './config.js';
 
 const TOKEN_KEY = 'jwt_token';
 
+
 function parseJwt(token) {
+  if (!token || typeof token !== 'string') {
+    console.warn('Invalid token provided to parseJwt');
+    return null;
+  }
+  
   try {
-    const payload = token.split('.')[1];
-    return JSON.parse(atob(payload));
+    // Split the token and check it has 3 parts
+    const parts = token.split('.');
+    if (parts.length !== 3) {
+      console.warn('JWT token does not have 3 parts');
+      return null;
+    }
+    
+    // JWT uses URL-safe base64
+    const base64Url = parts[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    
+ 
+    const paddedBase64 = base64.padEnd(base64.length + (4 - base64.length % 4) % 4, '=');
+    
+    // Decode base64
+    const jsonPayload = decodeURIComponent(
+      atob(paddedBase64)
+        .split('')
+        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    
+    return JSON.parse(jsonPayload);
   } catch (e) {
+    console.error('Failed to parse JWT:', e);
     return null;
   }
 }
 
 const authService = {
-  // Save token after login/register
   setToken(token) {
-    if (!token) return;
+    if (!token) {
+      console.warn('Attempting to set null/empty token');
+      return;
+    }
+    
+    console.log('Setting token, length:', token.length);
     localStorage.setItem(TOKEN_KEY, token);
     this.updateUI();
   },
 
-  // Get token from storage
   getToken() {
-    return localStorage.getItem(TOKEN_KEY);
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (!token) {
+      return null;
+    }
+    
+    // Quick sanity check - most JWT tokens are longer than 50 chars
+    if (token.length < 50) {
+      console.warn('Token seems too short, possibly invalid');
+      this.clearInvalidToken();
+      return null;
+    }
+    
+    return token;
   },
 
-  // Parse username claim from JWT (subject)
+  clearInvalidToken() {
+    console.log('Clearing invalid token from storage');
+    localStorage.removeItem(TOKEN_KEY);
+  },
+
   getUsername() {
     const token = this.getToken();
     if (!token) return null;
+    
     const payload = parseJwt(token);
-    if (!payload || (!payload.sub && !payload.subject)) {
-      // libraries differ — subject is standard "sub"
-      return payload?.sub || payload?.username || null;
-    }
-    return payload.sub || null;
+    return payload?.sub || payload?.username || null;
   },
 
-  // Check if user is logged in (basic expiry check)
   isAuthenticated() {
     const token = this.getToken();
-    if (!token) return false;
-    try {
-      const payload = parseJwt(token);
-      if (!payload) return false;
-      // some JWT libraries use 'exp' (seconds), ensure ms compare
-      const { exp } = payload;
-      if (!exp) return true; // if token has no exp, assume valid (rare)
-      const expMs = exp * (exp < 1e12 ? 1000 : 1); // seconds -> ms if needed
-      return expMs > Date.now();
-    } catch (err) {
+    if (!token) {
       return false;
     }
+    
+    const payload = parseJwt(token);
+    if (!payload) {
+      this.clearInvalidToken();
+      return false;
+    }
+    
+    // Check expiration (JWT exp is in seconds)
+    if (payload.exp) {
+      const now = Math.floor(Date.now() / 1000);
+      const isValid = payload.exp > now;
+      
+      if (!isValid) {
+        console.log('Token expired, clearing');
+        this.clearInvalidToken();
+      }
+      
+      return isValid;
+    }
+    
+    // No expiration claim, assume valid
+    return true;
   },
 
-  // Return Authorization header for fetch
-  getAuthHeader() {
-    const token = this.getToken();
-    if (!token) return {};
-    return { Authorization: `Bearer ${token}` };
-  },
-
-  // Remove token on logout
   logout() {
+    console.log('Logging out, clearing token');
     localStorage.removeItem(TOKEN_KEY);
     this.updateUI();
   },
 
-  // Perform login against backend (returns resolved token+username)
   async login(username, password) {
     if (!username || !password) {
       throw new Error('Username and password required');
     }
 
-    const res = await fetch(`${API_BASE_URL}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
-    });
+    try {
+      console.log('Attempting login for:', username);
+      
+      const res = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ username, password }),
+      });
 
-    if (!res.ok) {
-      let errMsg = `Login failed (${res.status})`;
+      const data = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(data.message || data.error || `Login failed (${res.status})`);
+      }
 
-      const json = await res.json();
-      errMsg = json.error || json.message || errMsg;
-
-      throw new Error(errMsg);
+      if (data.token) {
+        this.setToken(data.token);
+        this.updateUI();
+        return data;
+      }
+      throw new Error('Login response missing token');
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
     }
-
-    const json = await res.json();
-    if (json.token) {
-      this.setToken(json.token);
-      this.updateUI();
-      return json;
-    }
-    throw new Error('Login response missing token');
   },
 
-  // Perform registration against backend (register + auto-store token)
   async register(username, password) {
     if (!username || !password) {
       throw new Error('Username and password required');
     }
 
-    const res = await fetch('http://localhost:8080/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
-    });
+    try {
+      console.log('Attempting registration for:', username);
+      
+      const res = await fetch(`${API_BASE_URL}/auth/register`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ username, password }),
+      });
 
-    if (!res.ok) {
-      let errMsg = `Registration failed (${res.status})`;
+      const data = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(data.message || data.error || `Registration failed (${res.status})`);
+      }
 
-      const json = await res.json();
-      errMsg = json.error || json.message || errMsg;
-
-      throw new Error(errMsg);
+      if (data.token) {
+        this.setToken(data.token);
+        this.updateUI();
+        return data;
+      }
+      throw new Error('Register response missing token');
+    } catch (error) {
+      console.error('Register error:', error);
+      throw error;
     }
-
-    const json = await res.json();
-    if (json.token) {
-      this.setToken(json.token);
-      this.updateUI();
-      return json;
-    }
-    throw new Error('Register response missing token');
   },
 
-  // Update UI elements in header according to auth state
   updateUI() {
     const loggedIn = this.isAuthenticated();
+    console.log('Updating UI, logged in:', loggedIn);
+    
     const authSection = document.getElementById('auth-section');
     const userSection = document.getElementById('user-section');
     const usernameDisplay = document.getElementById('username-display');
 
     if (authSection) {
-      if (loggedIn) authSection.classList.add('hidden');
-      else authSection.classList.remove('hidden');
+      authSection.classList.toggle('hidden', loggedIn);
     }
 
     if (userSection) {
-      if (loggedIn) userSection.classList.remove('hidden');
-      else userSection.classList.add('hidden');
+      userSection.classList.toggle('hidden', !loggedIn);
     }
 
     if (usernameDisplay) {
-      usernameDisplay.textContent = loggedIn ? this.getUsername() || '' : '';
+      const username = this.getUsername();
+      usernameDisplay.textContent = loggedIn ? username || '' : '';
     }
   },
 };
+
+// Clear any invalid tokens on module load
+if (authService.getToken() && !authService.isAuthenticated()) {
+  authService.clearInvalidToken();
+}
 
 export default authService;
