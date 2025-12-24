@@ -3,8 +3,7 @@
 import { fetchLeaderboard, submitScore } from './api.js';
 import authService from './auth.js';
 
-const leaderboardList = document.getElementById('leaderboardList'); 
-
+const leaderboardList = document.getElementById('leaderboardList');
 
 let entries = [];
 let onChange = null;
@@ -51,7 +50,6 @@ export async function addOrUpdateEntry(name, score) {
   }
 }
 
-
 export async function renderLeaderboard() {
   try {
     const data = await fetchLeaderboard();
@@ -80,8 +78,6 @@ export async function renderLeaderboard() {
   }
 }
 
-
- 
 export async function handleScoreSubmission(score) {
   try {
     if (!authService.isAuthenticated()) {
@@ -97,7 +93,6 @@ export async function handleScoreSubmission(score) {
     alert(`Failed to submit score: ${err.message || err}`);
   }
 }
-
 
 export function initLeaderboard() {
   // initial render

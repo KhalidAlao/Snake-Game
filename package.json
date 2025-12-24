@@ -3,6 +3,8 @@
     "@babel/eslint-parser": "^7.27.1",
     "@eslint/js": "^9.36.0",
     "@jest/globals": "^29.7.0",
+    "@vitejs/plugin-basic-ssl": "^1.0.0",
+    "baseline-browser-mapping": "^2.9.11",
     "eslint": "^8.57.1",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^10.1.8",
@@ -13,22 +15,21 @@
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "lint-staged": "^16.2.3",
-    "prettier": "^3.6.2",
-      "vite": "^5.0.0",
-    "@vitejs/plugin-basic-ssl": "^1.0.0"
+    "prettier": "^3.7.4",
+    "vite": "^5.0.0"
   },
   "type": "module",
   "scripts": {
     "dev": "vite",
-  "build": "vite build",
-  "preview": "vite preview",
+    "build": "vite build",
+    "preview": "vite preview",
     "prepare": "husky install",
     "format:check": "prettier --check src",
     "format:write": "prettier --write src",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --testEnvironment=jsdom",
-     "dev:all": "concurrently \"npm run dev\" \"cd ../backend && ./mvnw spring-boot:run\"",
+    "dev:all": "concurrently \"npm run dev\" \"cd ../backend && ./mvnw spring-boot:run\"",
     "setup": "npm install && echo 'VITE_API_BASE_URL=http://localhost:8080/api' > .env"
   },
   "lint-staged": {

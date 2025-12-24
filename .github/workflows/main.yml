@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
-      
+
       - run: npm ci
 
       # First, attempt to auto-fix both formatting and linting
@@ -38,16 +38,14 @@ jobs:
         with:
           message: |
             ❌ CI failed due to code quality issues.
-            
+
             **Some issues couldn't be auto-fixed. Run these commands locally:**
             ```bash
             npm run format:write    # Fix formatting
             npm run lint:fix        # Fix auto-fixable lint issues
             ```
-            
+
             **Then manually fix any remaining ESLint errors and run:**
             ```bash
             npm run lint            # Check for remaining issues
             ```
-            
-          

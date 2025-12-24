@@ -4,9 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Snake Game</title>
-    <meta name="description" content="Snake Game — play, set high scores and compete. Built with vanilla JS and a leaderboard API." />
+    <meta
+      name="description"
+      content="Snake Game — play, set high scores and compete. Built with vanilla JS and a leaderboard API."
+    />
     <meta name="theme-color" content="#111111" />
- 
+
     <link rel="icon" href="/favicon.ico" />
     <link rel="stylesheet" href="styles.css" />
   </head>
@@ -46,7 +49,14 @@
       </div>
 
       <!-- Leaderboard Modal -->
-      <div class="modal hidden" id="modal" role="dialog" aria-modal="true" aria-labelledby="leaderboard-title" tabindex="-1">
+      <div
+        class="modal hidden"
+        id="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="leaderboard-title"
+        tabindex="-1"
+      >
         <div class="modal-content">
           <h1 id="leaderboard-title">Leaderboard</h1>
 
@@ -68,7 +78,14 @@
     </main>
 
     <!-- Help Modal -->
-    <div class="modal hidden" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="help-title" tabindex="-1">
+    <div
+      class="modal hidden"
+      id="helpModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="help-title"
+      tabindex="-1"
+    >
       <div class="modal-content">
         <h1 id="help-title">How to Play</h1>
         <div class="instructions">
@@ -103,12 +120,31 @@
     </div>
 
     <!-- Add Auth Modals -->
-    <div class="modal hidden" id="loginModal" role="dialog" aria-modal="true" aria-labelledby="login-title" tabindex="-1">
+    <div
+      class="modal hidden"
+      id="loginModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="login-title"
+      tabindex="-1"
+    >
       <div class="modal-content">
         <h1 id="login-title">Login</h1>
         <form id="login-form">
-          <input type="text" id="login-username" placeholder="Username" required aria-label="Username">
-          <input type="password" id="login-password" placeholder="Password" required aria-label="Password">
+          <input
+            type="text"
+            id="login-username"
+            placeholder="Username"
+            required
+            aria-label="Username"
+          />
+          <input
+            type="password"
+            id="login-password"
+            placeholder="Password"
+            required
+            aria-label="Password"
+          />
           <button type="submit">Login</button>
         </form>
         <button id="close-login">Cancel</button>
@@ -116,12 +152,31 @@
       </div>
     </div>
 
-    <div class="modal hidden" id="registerModal" role="dialog" aria-modal="true" aria-labelledby="register-title" tabindex="-1">
+    <div
+      class="modal hidden"
+      id="registerModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="register-title"
+      tabindex="-1"
+    >
       <div class="modal-content">
         <h1 id="register-title">Register</h1>
         <form id="register-form">
-          <input type="text" id="register-username" placeholder="Username" required aria-label="Username">
-          <input type="password" id="register-password" placeholder="Password" required aria-label="Password">
+          <input
+            type="text"
+            id="register-username"
+            placeholder="Username"
+            required
+            aria-label="Username"
+          />
+          <input
+            type="password"
+            id="register-password"
+            placeholder="Password"
+            required
+            aria-label="Password"
+          />
           <button type="submit">Register</button>
         </form>
         <button id="close-register">Cancel</button>
