@@ -1,58 +1,85 @@
-# Snake Game
+Snake Game - Full Stack Portfolio Project
 
-A sleek, responsive, and theme-toggleable Snake Game built with HTML, CSS, and JavaScript. The game features a retro-inspired interface combined with modern design enhancements, optimized for smooth usability across both desktop and mobile devices.
+A modern, full-stack Snake game built with vanilla JavaScript frontend and Spring Boot backend, featuring JWT authentication, a leaderboard, and CI/CD integration. 
 
----
+Features
 
-## 🚀 Features
+Game Features
 
-- 🎮 **Classic Snake Gameplay:** Navigate the snake to collect food, grow longer, and avoid crashing into yourself or walls.
-- 🌗 **Light/Dark Theme Toggle:** Easily switch between light and dark modes using an interactive toggle switch.
-- 📱 **Responsive Design:** Fully mobile-optimized layout with on-screen directional controls for touch devices.
-- 🎨 **Smooth Animations & Transitions:** Polished visual effects using CSS transitions and hover states for an engaging experience.
-- 🧠 **Accessible UI:** Clear typography, high-contrast color themes, ARIA-friendly controls, and keyboard navigation support.
+Classic Snake Gameplay - Smooth controls, increasing difficulty, and score tracking
+Responsive Design - Works on desktop and mobile with on-screen D-pad
+Light/Dark Mode - Toggle between themes with persistent preferences
+Pause/Resume - Press 'P' to pause the game anytime
+Game Grid - Visual grid background for better orientation
+User Features
 
----
+JWT Authentication - Secure user registration and login
+Persistent Sessions - Token-based authentication with auto-login
+User-Specific High Scores - Personal high score tracking
+Profile Display - Shows logged-in username in header
+eaderboard System
 
-## 🛠️ Technologies Used
+Global Top 5 - Real-time leaderboard showing top scores
+Score Submission - Automatic submission for qualifying scores
+Score Validation - Prevents duplicate submissions within time window
+Timestamps - Shows when scores were achieved
+Technical Features
 
-- **HTML5** — Semantic structure and canvas setup.
-- **CSS3** — Theming, responsive layout, animations, and mobile UI.
-- **JavaScript** — Game logic, canvas rendering, input handling, and theme management.
+RESTful API - Clean backend API with proper HTTP methods
+Database Persistence - PostgreSQL for user data and scores
+CORS Configuration - Secure cross-origin resource sharing
+Input Validation - Server-side validation for all inputs
+Error Handling - Graceful error handling and user feedback
+Tech Stack
 
----
+Frontend
 
-## 📂 Project Structure
+Vanilla JavaScript - No frameworks, pure JS for maximum performance
+HTML5 Canvas - For smooth game rendering
+CSS3 - Custom properties for theming, responsive design
+Vite - Build tool and development server
+ESLint & Prettier - Code quality and formatting
+Backend
 
-/snake-game/
-│
-├── index.html # Main HTML file
+Spring Boot 3 - Java backend framework
+Spring Security - Authentication and authorization
+JWT (JSON Web Tokens) - Stateless authentication
+Spring Data JPA - Database abstraction
+PostgreSQL - Relational database
+Maven - Dependency management
+DevOps & Tools
 
-├── styles.css # Visual styling and responsive layout
+GitHub Actions - CI/CD pipeline with auto-formatting
+PostgreSQL - Production database
+Dotenv - Environment configuration
+Jest - Testing framework (frontend)
+JUnit - Testing framework (backend)
 
-├── script.js # Game logic and interaction handling
+API Documentation
 
-└── README.md # Project overview and instructions
+Authentication Endpoints
 
----
+Method	Endpoint	Description	Request Body
+POST	/api/auth/register	Register new user	{username, password}
+POST	/api/auth/login	Login user	{username, password}
+Response: {token, username}
 
-## 🎮 How to Play
+Leaderboard Endpoints
 
-1. **Start the game:** The snake moves automatically once the game begins.
-2. **Control the snake:**
-   - Use arrow keys on desktop.
-   - Use on-screen directional buttons on mobile.
-3. **Goal:** Eat food to grow longer while avoiding collisions with the snake's own body or the walls.
-4. **Restart:** Click the **Restart** button after a game over to play again.
+Method	Endpoint	Description	Auth Required
+GET	/api/leaderboard	Get top 5 scores	No
+POST	/api/leaderboard	Submit new score	Yes (Bearer token)
+DELETE	/api/leaderboard	Clear leaderboard	Yes
+POST Body: {score: number}
 
----
+Installation & Setup
 
-## ♿ Accessibility Notes
+Prerequisites
 
-- The UI uses clear, readable fonts and color contrasts that meet accessibility standards.
-- Interactive elements include keyboard support and ARIA attributes to assist screen readers.
-- Theme toggle helps users reduce eye strain with light or dark modes.
+Node.js (v18 or higher)
+Java 17 or higher
+Maven 3.6+
+PostgreSQL 14+
+Git
 
----
 
-Enjoy the game! 🐍
