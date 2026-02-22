@@ -1,4 +1,4 @@
-Snake Game - Full Stack Portfolio Project
+Snake Game
 
 A modern, full-stack Snake game built with vanilla JavaScript frontend and Spring Boot backend, featuring JWT authentication, a leaderboard, and CI/CD integration. 
 
