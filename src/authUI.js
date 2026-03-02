@@ -1,4 +1,4 @@
-// src/authUI.js
+
 import authService from './auth.js';
 
 let loginModal;

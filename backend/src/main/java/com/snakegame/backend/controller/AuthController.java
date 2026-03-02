@@ -21,19 +21,25 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody Map<String,String> body) {
-        String username = body.get("username");
-        String password = body.get("password");
-        if (username == null || password == null) {
-            return ResponseEntity.badRequest().body(Map.of("error", "username and password required"));
-        }
-        if (userService.existsByUsername(username)) {
-            return ResponseEntity.badRequest().body(Map.of("error", "username already exists"));
-        }
+public ResponseEntity<?> register(@RequestBody Map<String,String> body) {
+    String username = body.get("username");
+    String password = body.get("password");
+    if (username == null || password == null) {
+        return ResponseEntity.badRequest().body(Map.of("error", "username and password required"));
+    }
+    if (userService.existsByUsername(username)) {
+        return ResponseEntity.badRequest().body(Map.of("error", "username already exists"));
+    }
+    try {
         User created = userService.registerUser(username, password);
         String token = jwtUtil.generateToken(created.getUsername());
         return ResponseEntity.ok(Map.of("token", token, "username", created.getUsername()));
+    } catch (IllegalArgumentException e) {
+        // The only IllegalArgumentException thrown in registerUser is from password validation
+        return ResponseEntity.badRequest()
+                .body(Map.of("error", "Password must be between 6 and 200 characters"));
     }
+}
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String,String> body) {

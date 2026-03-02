@@ -33,7 +33,11 @@ class Config {
 
   static getEnableAuth() {
     // Made static
-    if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_ENABLE_AUTH) {
+    if (
+      typeof import.meta !== 'undefined' &&
+      import.meta.env &&
+      import.meta.env.VITE_ENABLE_AUTH
+    ) {
       return import.meta.env.VITE_ENABLE_AUTH === 'true';
     }
     return true; // Default to enabled
